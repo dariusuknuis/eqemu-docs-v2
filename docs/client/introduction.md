@@ -12,6 +12,7 @@ Client side modifications
 
 ## File Formats
 - [WLD by Windcatcher](guides/file-formats/wld-by-windcatcher.md) - A reference guide to the WLD file format
+- [WLD by Darius](guides/file-formats/wld-by-darius.md) - An updated reference guide to the WLD file format
 
 ## References
 - [Race Files](race-files.md) - Lists race IDs, model names, and file references
