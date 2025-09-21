@@ -86,19 +86,19 @@ Data in .WLD files is encoded little-endian, so 0x54503D02 will appear as "02 3D
 
 ### The .WLD header consists of seven DWORDs:
 
-#### Magic : DWORD
+#### Magic: DWORD
 
 This always contains 0x54503D02. It identifies the file as a .WLD file.
 
-#### Version : DWORD
+#### Version: DWORD
 
 For old-format .WLD files, this always contains 0x00015500. For new-format .WLD files, this always contains 0x1000C800. Apparently, if the upper half of the DWORD is 0x1000, then it is "new world". Seen with Luclin-era zones and after. 
 
-#### FragmentCount : DWORD
+#### FragmentCount: DWORD
 
 Contains the number of fragments in the .WLD file, minus 1 (that is, the highest fragment index, starting at 0).
 
-#### RegionCount : DWORD
+#### RegionCount: DWORD
 
 Contains the number of regions in the file. Should only be > 0 in zone files.
 
@@ -106,7 +106,7 @@ Contains the number of regions in the file. Should only be > 0 in zone files.
 
 Contains the size, in bytes, of the largest fragment in the file.
 
-#### StringHashSize : DWORD
+#### StringHashSize: DWORD
 
 Contains the size of the string hash in bytes. All strings in .WLD files are XOR-encoded using the following rotating set of flags:
 
@@ -118,7 +118,7 @@ That is, the first byte is XOR’ed with 0x95, the second byte with 0x3A, and so
 
 The first byte of the string hash is always a junk value (actually encoded zero which results in 0x95) and is used for fragments that have no string name. Encoded strings therefore start at position 1 in the string hash. The string hash is nothing more than a bunch of null-terminated strings that have been concatenated together and encoded.
 
-#### StringCount : DWORD
+#### StringCount: DWORD
 
 Contains the number of strings in the string hash. 
 
@@ -130,21 +130,21 @@ There are two basic kinds of fragments: plain and reference. Plain fragments are
 
 Almost all fragments (plain and reference) begin with the following data:
 
-#### Size : DWORD
+#### Size: DWORD
 
 Size of the fragment in bytes. All fragments are padded such that Size is evenly divisible by 4 and Size should reflect the padded value.
 
-#### ID : DWORD
+#### ID: DWORD
 
 The fragment type. This will typically be a value in the range 0x03 to 0x37 and tells the file reader which specific kind of fragment it is. Some fragment types are plain fragments and some are reference fragments: the ID determines which.
 
-#### NameReference : DWORD
+#### NameReference: DWORD
 
 Most fragment types will have a string name, which is stored in encoded form in the .WLD file’s string hash. The NameReference gives a way to retrieve the name. If the fragment has a string name, its NameReference should contain the negative value of the string’s index in the string hash. For example, if the string is at position 31 in the string hash, then NameReference should contain –31. A value of 0 means the fragment doesn't have a name reference.
 
 The client code apparently treats this field as conditional. If it is > 0, it references a fragment directly through its index, or position, within the .WLD file, and if it is < 0 it is an actual name reference. It is almost always only zero or < 0 (negative). For more information on how the condition works, see the Reference entry.
 
-One, and possibly the only, exception to a fragment having the NameReference field is fragment type 0x35 (GloabalAmbientLightDef). That fragment type only has Size, ID, and a BGRA color value field. 
+There are a few fragment types that don't have a name reference, including fragment types 0x01 (DefaultPaletteFile), 0x02 (UserData), and 0x35 (GlobalAmbientLightDef). 
 
 #### Reference fragments
 
@@ -169,13 +169,13 @@ All fragments are padded to end on DWORD boundaries. The Size field above must r
 
 ### Notes
 
-This fragment simply contains the name of the palette.bmp file that is present in a lot of .S3D files. I have never seen one in an actual EverQuest .WLD file, it seems to be read by some of the clients, and can be added manually. Doesn't seem to have any effect in-game.
+This fragment simply contains the name of the palette.bmp file that is present in a lot of .S3D files. I have never seen one in an actual EverQuest .WLD file, but it seems to be read by some of the clients, and can be added manually. Doesn't seem to have any effect in-game.
 
 ### Fields
 
 #### NameLength: WORD
 
-Contains the length of the filename in bytes.
+Contains the length of the filename in bytes, +1 (padded with a null character).
 
 #### FileName: BYTEs
 
@@ -199,10 +199,9 @@ The userdata. May have to be encoded like the string hash names. See the introdu
 
 ## 0x03 — BMInfo
 
-
 ### Notes
 
-This fragment references one or more texture filenames. WLDCOM.EXE variably calls this BMINFO or FRAME. If one texture is referenced, it will call it "FRAME" and if multiple, it will call it "BMINFO". BMInfo also seems to be what it is called in client code. Most of these fragments will only have one texture reference. 
+This fragment references one or more texture filenames (BM standing for BitMap?). WLDCOM.EXE variably calls this BMINFO or FRAME. If one texture is referenced, it will call it "FRAME" and if multiple, it will call it "BMINFO". BMInfo also seems to be what it is called in client code. Most of these fragments will only have one texture reference. 
 
 Layered textures, like for Luclin player character models, and some terrain textures starting with Luclin, will have 2 texture references; one for a base texture, and one for a overlay. In these cases, the decoded names of the files may have extra information outside of the the actual filename that controls how they are used by the client. For instance, Luclin player character model files will will often have:
 
@@ -233,59 +232,79 @@ TWIBASE1CPAL.BMP
 
 ### Fields
 
-#### Size1 : DWORD
+#### NameReference: DWORD
 
-Contains the number of texture filenames in this fragment. Most of the time there is only one name. Entries (there are Size1 of them):
+Standard name reference. See "Basic fragments - NameReference" for details.
+
+#### TextureCount: DWORD
+
+Contains the number of texture filenames in this fragment, minus 1. For instance, if there is only one texture reference, TextureCount would be 0. There will be a NameLength and then a FileName for TextureCount 0, and then another NameLength and FileName for each TextureCount > 0.
 
 #### NameLength: WORD
 
-Contains the length of the filename in bytes.
+Contains the length of the filename in bytes, +1 (padded with a null character).
 
 #### FileName: BYTEs
 
-The encoded filename. See the introduction above for a description of string coding.
+The encoded filename, equal to the preceeding NameLength. See the introduction above for a description of string coding.
 
-The client apparently looks for certain filenames and substitutes built-in textures in their place. When using an animated fire texture where the names are fire1.bmp, fire2.bmp, fire3.bmp and fire4.bmp, respectively, the client always uses its built-in fire textures instead (they look great anyway). This only happens when the textures are used by a placeable object and not when the textures are in the main zone file. It is unknown whether the substitution depends on the presence and exact order of all four textures.
-
-## 0x04 — Texture Bitmap Info — PLAIN
+## 0x04 — SimpleSpriteDef
 
 ### Notes
 
-This fragment represents an entire texture rather than merely a bitmap used by that texture. The conceptual difference from 0x03 fragments is that textures may be animated; the 0x04 fragment represents the entire texture including all bitmaps that it uses, whereas an 0x03 fragment would represent only a single bitmap in the animated sequence.
+A simple sprite is basically a reference to one or more BMInfo fragments as "frames". If it contains only one frame, it will be a simple texture, and if it contains multiple frames, it can be animated. 
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Bit 3 ........ If 1, texture is animated (has more than one 0x03 reference). Also means that Params1 exists. Bit 4 ........ If 1, Params2 exists. Seems to always be set.
+Standard name reference. See "Basic fragments - NameReference" for details.
 
-#### Size : DWORD
+#### Flags: DWORD
 
-Contains the number of 0x03 fragment references. It will only reference one 0x03 fragment for most textures but should reference more than one for animated textures (e.g. water).
+0x04 - If set the CurrentFrame field will exist
+0x08 - If set the Sleep field will exist
+0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read, but doesn't seem to be read by the client.
+0x40 - Toggle for "SKIPFRAMES". I have no idea what it does does.
 
-#### Params1 : DWORD
+#### FrameCount: DWORD
 
-Only exists if Flags bit 3 is set to 1.
+Contains the number of 0x03 BMInfo references.
 
-#### Params2 : DWORD
+#### CurrentFrame: DWORD
 
-Only exists if Flags bit 4 is set to 1.
+Exists if 0x04 flag is set. Doesn't seem to do anything.
 
-#### References: DWORDs
+#### Sleep : DWORD
 
-One or more references to 0x03 fragments.
+Exists if 0x08 flag is set. It is the time in milliseconds between frames. If there are multiple frames and Sleep exists, then the simple sprite will be animated.
 
-## 0x05 — Texture Bitmap Info Reference — REFERENCE
+#### Frames: DWORDs
 
-Reference points to a 0x04 Texture Bitmap Info fragment. 
+There will be FrameCount DWORDs that are always direct fragment index references to 0x03 BMInfo fragments. An animated simple sprite uses the order of these Frames as the order of the animation.
+
+## 0x05 — SimpleSprite
+
+### Notes
+
+Instance of a SimpleSpriteDef. Fragments that need to use a SimpleSpriteDef will always reference them through these fragments. 
 
 ### Fields
 
+#### NameReference: DWORD
+
+Standard name reference. See "Basic fragments - NameReference" for details.
+
+#### SpriteReference: DWORD
+
+Reference to a 0x04 SimpleSpriteDef fragment. See "Basic fragments - Reference" for details.
+
 #### Flags : DWORD
 
-Its purpose is unknown, but it seems to always contain 0x50.
+0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read.
+0x40 - Toggle for "SKIPFRAMES". I have no idea what it does does.
 
-## 0x06 — Two-dimensional Object — PLAIN
+## 0x06 — 2DSpriteDef
 
 ### Notes
 
@@ -1490,9 +1509,29 @@ Reference points to a 0x32 Vertex Color fragment
 
 Typically contains zero.
 
-## 0x35 — First Fragment — PLAIN
+## 0x35 — GlobalAmbientLightDef
 
-There are no fields. This fragment’s NameReference field should be set to 0xFF000000.
+### Notes
+
+
+
+### Fields
+
+#### Color B: BYTE
+
+Blue component of the global ambient light.
+
+#### Color G: BYTE
+
+Green component of the global ambient light.
+
+#### Color R: BYTE
+
+Red component of the global ambient light.
+
+#### Color A: BYTE
+
+Alpha component of the global ambient light.
 
 ## 0x36 — Mesh — PLAIN
 
