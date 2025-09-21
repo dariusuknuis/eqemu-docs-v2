@@ -12,7 +12,7 @@ description: Version 1.0, by Darius
 
     ASCII data files found in the chequip.s3d archive file, and some others, that was included in some versions of the EverQuest client. These have file extensions like .sps for texture info, .mdf for materials, .spk for animated models, .spm for non-animated models, etc..
 
-    Decompilations of the code in various versions of the EverQuest client software. 
+    Decompilations of the code in various versions of the EverQuest client software. Much of this data is based on the TAKP/EQMac client, since that is the oldest one I have the ability to run.
 
 Here's the list of the fragment types as surrently understood:
 
@@ -128,7 +128,7 @@ There are two basic kinds of fragments: plain and reference. Plain fragments are
 
 ### Basic fragments
 
-All fragments (plain and reference) begin with the following data:
+Almost all fragments (plain and reference) begin with the following data:
 
 #### Size : DWORD
 
@@ -140,9 +140,11 @@ The fragment type. This will typically be a value in the range 0x03 to 0x37 and 
 
 #### NameReference : DWORD
 
-Each fragment can have a string name, which is stored in encoded form in the .WLD file’s string hash. The NameReference gives a way to retrieve the name. If the fragment has a string name, its NameReference should contain the negative value of the string’s index in the string hash. For example, if the string is at position 31 in the string hash, then NameReference should contain –31. Values greater than 0 mean that the fragment doesn’t have a string name.
+Most fragment types will have a string name, which is stored in encoded form in the .WLD file’s string hash. The NameReference gives a way to retrieve the name. If the fragment has a string name, its NameReference should contain the negative value of the string’s index in the string hash. For example, if the string is at position 31 in the string hash, then NameReference should contain –31. A value of 0 means the fragment doesn't have a name reference.
 
-In reality, a value of 0 also means that the fragment doesn’t have a string name, and the first byte in the string hash is always preallocated to reflect this (it’s a null character that is encoded along with everything else). For all fragments that don’t have a name their NameReference field should contain zero, except for the 0x35 fragment: the 0x35 fragment should contain 0xFF000000 in its NameReference field.
+The client code apparently treats this field as conditional. If it is > 0, it references a fragment directly through its index, or position, within the .WLD file, and if it is < 0 it is an actual name reference. It is almost always only zero or < 0 (negative). For more information on how the condition works, see the Reference entry.
+
+One, and possibly the only, exception to a fragment having the NameReference field is fragment type 0x35 (GloabalAmbientLightDef). That fragment type only has Size, ID, and a BGRA color value field. 
 
 #### Reference fragments
 
@@ -155,19 +157,79 @@ This can be either a string reference or a fragment reference. If it is a fragme
 1. By name
 2. By fragment index
 
-If Reference contains a value that is less than or equal to zero, the value is negated and 1 is subtracted from it. Then a null-terminated string is loaded from the string hash, starting at that position. Every fragment that has been loaded is checked to see if its name matches the string that was loaded. If a match is found, then the reference is considered to point to that fragment.
+If Reference contains a value that is less than zero, the value is negated and 1 is subtracted from it. Then a null-terminated string is loaded from the string hash, starting at that position. Every fragment that has been loaded is checked to see if its name matches the string that was loaded. If a match is found, then the reference is considered to point to that fragment.
 
-If a match is not found, then the reference is considered to point only to that string instead of to a fragment. There are cases where certain fragments point to “magic” strings that cause the client to do something special. This is how that happens.
+If a match is not found, then the reference is considered to point only to that string instead of to a fragment. There may be cases where certain fragments point to “magic” strings that cause the client to do something special. This is not confirmed. The Polyhedron reference for DMSpriteDef2 fragments sometimes have the value "-2" if the hex 0x10000 flag is set, but in practice it does not seem to matter what value in in the Polyhedron reference if DMSpriteDef2 flag 0x10000 is set.
 
-If Reference contains a value greater than zero then it is considered to be a direct reference to another fragment, based on the order in which they were loaded from the file. It’s worth noting that the first fragment in the file (which would have an index of zero) cannot be referenced in this manner. This is the reason why the 0x35 fragment exists and why it’s a good idea to begin all .WLD files with one: it serves as a placeholder to ensure that the next fragment can always be referenced.
+If Reference contains a value greater than zero then it is considered to be a direct reference to another fragment, based on the order in which they were loaded from the file.
 
 All fragments are padded to end on DWORD boundaries. The Size field above must reflect this padding.
 
-## 0x03 — Texture Bitmap Name(s) — PLAIN
+## 0x01 — DefaultPaletteFile
 
 ### Notes
 
-This fragment references one or more texture filenames. For most textures (every one I have ever seen) it only references one filename.
+This fragment simply contains the name of the palette.bmp file that is present in a lot of .S3D files. I have never seen one in an actual EverQuest .WLD file, it seems to be read by some of the clients, and can be added manually. Doesn't seem to have any effect in-game.
+
+### Fields
+
+#### NameLength: WORD
+
+Contains the length of the filename in bytes.
+
+#### FileName: BYTEs
+
+The filename. May have to be encoded like the string hash names. See the introduction above for a description of string coding.
+
+## 0x02 — UserData
+
+### Notes
+
+This fragment contains a string. Have not seen it in Tanarus files, and not sure of its use. I have never seen one in an actual EverQuest .WLD file, it seems to be read by some of the clients, and can be added manually. Doesn't seem to have any effect in-game. UserData is a property of some other fragment types, though.
+
+### Fields
+
+#### Length: DWORD
+
+Contains the length of the userdata in bytes.
+
+#### Data: BYTEs
+
+The userdata. May have to be encoded like the string hash names. See the introduction above for a description of string coding.
+
+## 0x03 — BMInfo
+
+
+### Notes
+
+This fragment references one or more texture filenames. WLDCOM.EXE variably calls this BMINFO or FRAME. If one texture is referenced, it will call it "FRAME" and if multiple, it will call it "BMINFO". BMInfo also seems to be what it is called in client code. Most of these fragments will only have one texture reference. 
+
+Layered textures, like for Luclin player character models, and some terrain textures starting with Luclin, will have 2 texture references; one for a base texture, and one for a overlay. In these cases, the decoded names of the files may have extra information outside of the the actual filename that controls how they are used by the client. For instance, Luclin player character model files will will often have:
+
+ELFCHSK01.DDS
+ELFCH0001.DDS_LAYER
+
+The "_LAYER" texure (ELFCH0001.DDS) will be applied over the base texture (ELFCHSK01.DDS).
+
+and for some terrain textures:
+
+TWICLIFF02.DDS
+ROCK05D.DDS_DETAIL_4.000000
+
+The "_DETAIL" texture (ROCK05D.DDS) will be applied over the base texture (TWICLIFF02.DDS) and a scale will be applied of (4.000000) to the "_DETAIL" texture's UVs.
+
+Many Luclin outdoor zones have more than 2 texture files referenced by the same BMInfo fragment for a system that uses a base texture, a indexed-color bitmap as a mask for multiple textures simultaneously, and then the overlay textures, like this:
+
+TWIBASE1C.DDS
+TWIBASE1CPAL.BMP
+1, 1, 2, GRASS2E.DDS
+2, 1, 3, GRASS2D.DDS
+3, 1, 1, SAND02A.DDS
+4, 1, 0, GRASS2E.DDS
+5, 1, 0, GRASS2D.DDS
+6, 1, 0, SAND02A.DDS
+
+
 
 ### Fields
 
