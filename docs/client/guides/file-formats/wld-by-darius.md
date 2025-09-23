@@ -228,7 +228,13 @@ TWIBASE1CPAL.BMP
 5, 1, 0, GRASS2D.DDS
 6, 1, 0, SAND02A.DDS
 
+Here TWIBASE1C.DDS is a base texture. TWIBASE1CPAL.BMP is an indexed-color bitmap with only a few different colors. The palette bitmap looks roughly like the base texture. 
 
+The first comma-separated number, before the overlay texture filenames, lists which indexed color in the palette bitmap that texture will appear at. In reality, the actual number can be changed and it does not affect how the texture will be applied, only their order dictates that. The overlay texture will appear semi transparent over the base texture in-game. 
+
+The middle number affects the scaling of the UVs of the overlay texture. The higher the number, the smaller the tiles will be. 
+
+The third number doesn't seem to do anything. The numbers can apparently only be integers.
 
 ### Fields
 
@@ -1513,7 +1519,7 @@ Typically contains zero.
 
 ### Notes
 
-
+This fragment is a color value for the global lighting in a zone. 
 
 ### Fields
 
@@ -1533,43 +1539,54 @@ Red component of the global ambient light.
 
 Alpha component of the global ambient light.
 
-## 0x36 — Mesh — PLAIN
+## 0x36 — DmSpriteDef2
 
 ### Notes
 
-This is the fragment most often used for models but another one I’ve encountered is the 0x2C Alternate Mesh fragment.
+This is the more common mesh fragment, the other being 0x2C DmSpriteDef. 
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Typically contains 0x00018003 for zone meshes and 0x00014003 for placeable objects. The meaning of the bits is unknown.
+Standard name reference. See "Basic fragments - NameReference" for details.
 
-#### Fragment1 : DWORD
+#### Flags: DWORD
 
-References a 0x31 Texture List fragment. It tells the client which textures this mesh uses. For zone meshes, a single 0x31 fragment should be built that contains all the textures used in the entire zone. For placeable objects, there should be a 0x31 fragment that references only those textures used in that particular object.
+Mobs DmSpriteDef2 meshes tend to have 0x00003 for flags. Objects often have 0x14003, and sometimes 0x10003. Terrain usually has 0x18003, and rarely 0x10003 (Chardok).
 
-#### Fragment2 : DWORD
+0x00001 - If this is set, the CenterOffset values will be used, otherwise, the client will set CenterOffset to 0.0x, 0.0y, 0.0z.
+0x00002 - If this is set, the BoundingRadius value will be used, otherwise, the client will set BoundingRadius to 1.0.
+0x02000 - If this is set, "Params2" will be used. I am not sure what Params2 does when this is set or not. I have never seen it set on a DmSpriteDef2 mesh.
+0x04000 - If this is set, the BoundingBox values will be used, otherwise, I believe the client will make the bounding box from the AABB of the DmSpriteDef2 mesh.
+0x08000 - If this is set, the vertex color alpha value will be used. Effectively this turns off vertex colors on a terrain mesh if not set.
+0x10000 - From the way this flag is used, it seems it should toggle collision on objects and terrain meshes. In the TAKP/EQMac client, it only toggles collison on objects, and has no effect on terrain. 
 
-If this mesh is animated (not character models, but things like swaying flags and trees), this references a 0x2F Mesh Animated Vertices Reference fragment.
+#### MaterialPaletteRef: DWORD
 
-#### Fragment3 : DWORD
+References a 0x31 MaterialPalette fragment. It tells the client which materials this mesh uses. Typically all the DmSpriteDef2 terrain meshes in a zone will reference the same material palette. Object or mob DmSpriteDef2 meshes from different "Actors" can technically reference the same material palette, but often have their own material palettes. Though, I believe different DmSpriteDef2 meshes that are part of the same Actor object must all use the same material palette. 
 
-It is unknown what this references. It typically doesn’t reference anything.
+#### DmTrackRef: DWORD
 
-#### Fragment4 : DWORD
+References a 0x2F DmTrack fragment, which is the reference fragment for a 0x2E DmTrackDef, or a 0x37 DmTrackDef2 fragment. 0x2E may not be targeted by this reference by any DmSpriteDefe meshes. DmSpriteDef2 meshes that have this reference will have vertex animation, like some plants in Kunark jungles, or flags in Qeynos. 
 
-This typically references the very first 0x03 Texture Bitmap Name(s) fragment in the .WLD file. I have no idea why.
+#### DmRGBTrackRef: DWORD
 
-#### CenterX : FLOAT
+According to the client code, this should be a reference to a 0x33 DmRGBTrack fragment, which is the reference fragment for a 0x32 DmRGBTrackDef fragment. I have never seen it used in a DmSpriteDef2 mesh, and my attempts to add it never saw any effect in-game.
+
+#### PolyhedronRef: DWORD
+
+References a 0x18 Polyhedron fragment, which is the reference fragment for a 0x17 PolyhedronDef fragment. Will usually be 0 on mobs, notable exceptions being the ships that take players between the different continents in the game. On DmSpriteDef2 meshes with flag 0x10000 set, the PolyhedronRef will usually be -2. This actually doesn't seem to be a magic number, and in the TAKP/EQMac client, it seem to just be ignored if the flag is set. 
+
+#### CenterOffset X: FLOAT
 
 For zone meshes this typically contains the X coordinate of the center of the mesh. This allows vertex coordinates in the mesh to be relative to the center instead of having absolute coordinates. This is important for preserving precision when encoding vertex coordinate values. For placeable objects this seems to define where the vertices will lie relative to the object’s local origin. This seems to allow placeable objects to be created that lie at some distance from their position as given in a 0x15 Object Location fragment (why one would do this is a mystery, though).
 
-#### CenterY : FLOAT
+#### CenterOffset Y: FLOAT
 
 This is similar to CenterX but references the Y axis.
 
-#### CenterZ : FLOAT
+#### CenterOffset Z: FLOAT
 
 This is similar to CenterX but references the Z axis.
 
