@@ -1590,53 +1590,57 @@ This is similar to CenterX but references the Y axis.
 
 This is similar to CenterX but references the Z axis.
 
-#### Params2[0] : DWORD
+#### Params2[0]: FLOAT
 
-Typically contains zero. Its purpose is unknown.
+It is unknown what Params2 actually does. It may be an offset for lighting on the mesh. Some placed lights have values for this. You can see some slight change in lighting in an object by adjusting Params2 if you remove the DmRGBtrack reference from an object. It doesn't seem to matter if the 0x2000 is set or not, even though some versions of the client code seem to use Params2 only if the flag is set.
 
-#### Params2[1] : DWORD
+This first value may be the X component.
 
-Typically contains zero. Its purpose is unknown.
+#### Params2[1]: FLOAT
 
-#### Params2[2] : DWORD
+Mostly unknown, but this may be the Y component.
 
-Typically contains zero. Its purpose is unknown.
+#### Params2[2]: FLOAT
 
-#### MaxDist : FLOAT
+Mostly unknown, but this may be the X component.
 
-Given the values in CenterX, CenterY, and CenterZ, this seems to contain the maximum distance between any vertex and that position. It seems to define a radius from that position within which the mesh lies.
+#### BoundingRadius: FLOAT
 
-#### MinX : FLOAT
+This is the max distance from the CenterOffset that any vertex in the mesh can sit. If the 0x2 flag is not set, this value will be defaulted to 1.0, apparently.
 
-Seems to contain the minimum X coordinate of any vertex in the mesh, in absolute coordinates.
+#### BoundingBoxMin X: FLOAT
 
-#### MinY : FLOAT
+The bounding box is a volume that seems to be used for things like hitboxes, and objects that have special interactions, like ladders. If the 0x4000 is not set, the bounding box will apparently be calculated from the AABB of the DmSpriteDef2 mesh itself.
 
-Seems to contain the minimum Y coordinate of any vertex in the mesh, in absolute coordinates.
+This is the Min X coordinate.
 
-#### MinZ : FLOAT
+#### BoundingBoxMin Y: FLOAT
 
-Seems to contain the minimum Z coordinate of any vertex in the mesh, in absolute coordinates.
+This is the Min Y coordinate.
 
-#### MaxX : FLOAT
+#### BoundingBoxMin Z: FLOAT
 
-Seems to contain the maximum X coordinate of any vertex in the mesh, in absolute coordinates.
+This is the Min Z coordinate.
 
-#### MaxY : FLOAT
+#### BoundingBoxMax X: FLOAT
 
-Seems to contain the maximum Y coordinate of any vertex in the mesh, in absolute coordinates.
+This is the Max X coordinate.
 
-#### MaxZ : FLOAT
+#### BoundingBoxMax Y: FLOAT
 
-Seems to contain the maximum Y coordinate of any vertex in the mesh, in absolute coordinates.
+This is the Max Y coordinate.
 
-#### VertexCount : WORD
+#### BoundingBoxMax Z: FLOAT
 
-Tells how many vertices there are in the mesh. Normally this is three times the number of polygons, but this is by no means necessary as polygons can share vertices. However, sharing vertices degrades the ability to use vertex normals to make a mesh look more rounded (with shading).
+This is the Max Z coordinate.
 
-#### TexCoordsCount : WORD
+#### VertexCount: WORD
 
-Tells how many texture coordinate pairs there are in the mesh. This should equal the number of vertices in the mesh. Presumably this could contain zero if none of the polygons have textures mapped to them (but why would anyone do that?)
+Tells how many vertices there are in the mesh. It is a uint16, so that give the maximum number of vertices in a mesh at 65,535.
+
+#### UVCount : WORD
+
+Tells how many UV. This should equal the number of vertices in the mesh. Presumably this could contain zero if none of the polygons have textures mapped to them (but why would anyone do that?)
 
 #### NormalsCount : WORD
 
