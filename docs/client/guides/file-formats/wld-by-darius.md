@@ -1602,7 +1602,7 @@ Mostly unknown, but this may be the Y component.
 
 #### Params2[2]: FLOAT
 
-Mostly unknown, but this may be the X component.
+Mostly unknown, but this may be the Z component.
 
 #### BoundingRadius: FLOAT
 
@@ -1638,132 +1638,134 @@ This is the Max Z coordinate.
 
 Tells how many vertices there are in the mesh. It is a uint16, so that gives the maximum number of vertices in a mesh at 65,535.
 
-#### UVCount : WORD
+#### UVCount: WORD
 
-Tells how many UVs there are in the mesh. This usually equals the number of vertices in the mesh. Some zones have border wall meshes that have a simple transparent material and no UVs.
+Tells how many UVs there are in the mesh. This usually equals the number of vertices in the mesh. Some zones have border wall meshes that have a simple transparent material and no UVs. If the .WLD Version value is 0x1000C800 (or at least the upper half of the DWORD is 0x1000), then these will be FLOATs, otherwise they will be SIGNED WORDs. UVs wrap/repeat if the value is greater than 1 or -1. For example, a UV coordinate of 1.5 is equivalent to 0.5. Coordinates are a percent of dimensions of the texture, so in a 256x512 texture, 0.5 is somewhere around pixel 128 in the U coordinate and 256 in the V coordinate. 
 
-#### NormalsCount : WORD
+#### NormalsCount: WORD
 
 Tells how many vertex normal entries there are in the mesh. This should equal the number of vertices in the mesh.
 
-#### ColorCount : WORD
+#### ColorCount: WORD
 
 Tells how many vertex color entries are in the mesh. This should equal the number of vertices in the mesh, or zero if the mesh does not use vertex colors. Meshes do not require color entries to work. Zone terrain will usually be the only DmSpriteDef2 meshes that have these.
 
-#### FaceCount : WORD
+#### FaceCount: WORD
 
-Tells how many triangle polygons there are in the mesh. All faces in a DmSpriteDef2 mesh must be a triangle.
+Tells how many triangle polygons there are in the mesh. All faces in a DmSpriteDef2 mesh must be a triangle. A vertex can be part of multiple faces, but all the faces it is part of must use the same material. 
 
-#### VertexGroupCount : WORD
+#### VertexGroupCount: WORD
 
-The is the number of vertex groups in the mesh and are present in bone animated models. The entries are referenced by other objects or parameters by index order in which they appear (starting at 0).
+The is the number of vertex groups in the mesh and are present in bone animated models. The entries are referenced by bones (known as dags in some EverQuest documentation) of a 0x10 HierarchicalSpriteDef that references this DmSpriteDef2 mesh fragment. They are referenced by vertex index order in which they appear (starting at 0). I believe the vertices have to be grouped so that all the vertices that are references by a dag have to be contiguous. So you cannot have 2 vertex groups that reference the same dag. 
 
-#### FaceMaterialCount : WORD
+#### FaceMaterialGroupCount: WORD
 
-Tells how many PolygonTex entries there are. Polygons are grouped together by texture and PolygonTex entries tell the client how many polygons there are that use a particular texture.
+Tells how many face material groups there are. Faces are grouped together by the material that they use. The groups must be contiguous in the face index order. This means that 2 different groups can use the same material. A face can only belong to one group, though.
 
-#### VertexTexCount : WORD
+#### VertexMaterialGroupCount: WORD
 
-Tells how many VertexTex entries there are. Vertices are grouped together by texture and VertexTex entries tell the client how many vertices there are that use a particular texture.
+Tells how many vertex material groups there are. Vertices are also group by the material that is used by the face, or faces, that the vertex belongs to. Again, like the face material groups, these are contiguous in the vertex index order. A vertex may belong to multiple faces, but all the faces it belongs to must share the same material, so a vertex will only ever belong to one group, though multiple groups might use the same material, if the vertices are non-continguous in the vertex order. Vertex material groups seem to be used chiefly for controlling tinting.
 
-#### Size9 : WORD
+#### MeshOpCount: WORD
 
-This seems to only be used when dealing with animated (mob) models. It tells how many entries are in the Data9 area.
+Tells how many MeshOps there are. MeshOps are a method for LOD. They are used if "Level of Detail" is toggled to "ON" in some clients. They are basically a list of instructions of how to decimate the orignal mesh, based on distance from the mesh. Only mob models really have MeshOps. I am not sure they work on object or zone terrain DmSpriteDef2 meshes.
 
-#### Scale : WORD
+#### FloatingPointScale: WORD
 
-This allows vertex coordinates to be stored as integral values instead of floating-point values, without losing precision based on mesh size. Vertex values are multiplied by (1 shl Scale) and stored in the vertex entries.
+This allows vertex coordinates to be stored as integral values instead of floating-point values, without losing precision based on mesh size. Vertex coordinate values are divided by 2^FloatingPointScale for in-game values.
 
 Vertex entries (there are VertexCount of these):
 
-#### X : SIGNED WORD (signed 16-bit value)
+#### Vertex X: SIGNED WORD (signed 16-bit value)
 
-X component of the vertex position, multiplied by (1 shl Scale).
+X component of the vertex position.
 
-#### Y : SIGNED WORD (signed 16-bit value)
+#### Vertex Y: SIGNED WORD (signed 16-bit value)
 
-Y component of the vertex position, multiplied by (1 shl Scale).
+Y component of the vertex position.
 
-#### Z : SIGNED WORD (signed 16-bit value)
+#### Vertex Z: SIGNED WORD (signed 16-bit value)
 
-Z component of the vertex position, multiplied by (1 shl Scale). Texture coordinate entries (there are TexCoordsCount of these)
+Z component of the vertex position. 
 
-#### TX : SIGNED WORD (old-format file) or SIGNED DWORD (new-format file)
+UV coordinate entries (there are UVCount of these):
 
-In old-format .WLD files, this contains a signed 16-bit texture value in pixels (most textures are 256 pixels in size). In new-format .WLD files this is a signed 32-bit value instead.
+#### UV U: SIGNED WORD (old-format file) or FLOAT (new-format file)
 
-#### TZ : SIGNED WORD (old-format file) or SIGNED DWORD (new-format file)
+In old-format .WLD files, this contains a signed 16-bit UV value that are divided by 256 to get float values. In new-format .WLD files this is a float32. It is the U component of the texture UV.
 
-In old-format .WLD files, this contains a signed 16-bit texture value in pixels (most textures are 256 pixels in size). In new-format .WLD files this is a signed 32-bit value instead.
+#### UV V: SIGNED WORD (old-format file) or FLOAT (new-format file)
+
+In old-format .WLD files, this contains a signed 16-bit UV value that are divided by 256 to get float values. In new-format .WLD files this is a float32. It is the V component of the texture UV.
 
 Vertex normal entries (there are NormalsCount of these)
 
-#### NX : SIGNED BYTE
+#### Normal X: SIGNED BYTE
 
 Contains a signed byte representing the X component of the vertex normal, scaled such that –127 represents –1 and 127 represents 1.
 
-#### NY : SIGNED BYTE
+#### Normal Y: SIGNED BYTE
 
 Contains a signed byte representing the Y component of the vertex normal, scaled such that –127 represents –1 and 127 represents 1.
 
-#### NZ : SIGNED BYTE
+#### Normal Z: SIGNED BYTE
 
 Contains a signed byte representing the Z component of the vertex normal, scaled such that –127 represents –1 and 127 represents 1.
 
 Vertex color entries (there are ColorCount of these)
 
-#### Color : DWORD
+#### Color: DWORD
 
-This contains an RGBA color value for each vertex in the mesh. It specifies the additional color to be applied to the vertex, as if that vertex has been illuminated by a nearby light source. The A value isn’t fully understood; I believe it represents an alpha as applied to the texture, such that 0 makes the polygon a pure color and 0xFF either illuminates an unaltered texture or mutes the illumination completely. That is, it’s either a blending value or an alpha value. Further experimentation is required. 0xD9 seems to be a good (typical) A value for most illuminated vertices.
+This contains an BGRA color value for each vertex in the mesh. It specifies the additional color to be applied to the vertex, as if that vertex has been illuminated by a nearby light source. The A value is a alpha value that is combined with dymanic light sources. There is a maximum value to the light, so a high value will start bright, and not change much with a dynamic light source. Each byte of the DWORD is one unsigned color value (0-255).
 
-Polygon entries (there are PolygonsCount of these)
+Polygon entries (there are FaceCount of these)
 
-#### PolygonFlag : WORD
+#### FaceFlags: WORD
 
-Normally contains zero for polygons but contains 0x0010 for polygons that the player can pass through (like water and tree leaves).
+The only known and probably possible flag for a DmSpriteDef2 face is 0x10, which lets the face be "passable", meaning, it doesn't have any collision. This flag can be applied to mobs mesh faces in some cases, but usually to object or zone terrain mesh faces.
 
-#### Vertex1 : WORD
+#### Vertex 1: WORD
 
-Index of the polygon’s first vertex.
+Index of the face's first vertex.
 
-#### Vertex2 : WORD
+#### Vertex 2: WORD
 
-Index of the polygon’s second vertex.
+Index of the face's second vertex.
 
-#### Vertex3 : WORD
+#### Vertex 3: WORD
 
-Index of the polygon’s third vertex.\
- VertexPiece entries (there are VertexPieceCount of these)
+Index of the face's third vertex.\
+ VertexGroup entries (there are VertexGroupCount of these)
 
-#### VertexCount : WORD
+#### VertexCount: WORD
 
-Number of vertices in the skeleton piece.
+Number of vertices in the vertex group. These indicies of the vertices in a group is assumed as them being in order of the vertex index. The first vertex group starts with the first vertex in the vertex index. So if the first VertexCount is 10, then it contains vertices 0-9. If the next VertexCount is 5, then it contains vertices 10-14, and so on...
 
-#### PieceIndex : WORD
+#### DagIndex: WORD
 
-This is the index of the piece according to the 0x10 Skeleton Track Set fragment. The very first piece (index 0) is usually not referenced here as it is usually just a “stem” starting point for the skeleton. Only those pieces referenced here in the mesh should actually be rendered. Any other pieces in the skeleton contain no vertices or polygons and have other purposes.
+This is the index of the bone (known as dags in some EverQuest documention) in the 0x10 HierarchicalSpriteDef that references this DmSpriteDef2 mesh fragment.
 
-PolygonTex entries (there are PolygonTexCount of these)
+FaceMaterialGroup entries (there are FaceMaterialGroupCount of these)
 
-#### PolygonCount : WORD
+#### FaceCount: WORD
 
-Number of polygons that use the same texture. All polygon entries are sorted by texture index so that polygons that use the same texture are together.
+Number of faces that use the same material. These indicies of the faces in a group is assumed as them being in order of the face index. The first face material group starts with the first face in the face index. So if the first FaceCount is 10, then it contains faces 0-9. If the next FaceCount is 5, then it contains faces 10-14, and so on...
 
-#### TextureIndex : WORD
+#### MaterialIndex: WORD
 
-The index of the texture that the polygons use, according to the 0x31Texture List fragment that this fragment references.
+The index of the material that the faces use, according to the 0x31 MaterialPalette fragment contained in this DmSpriteDef2's MaterialPaletteRef. Starts with 0.
 
-VertexTex entries (there are VertexTexCount of these)
+VertexMaterialGroup entries (there are VertexMaterialGroupCount of these)
 
-#### VertexCount : WORD
+#### VertexCount: WORD
 
-Number of vertices that use the same texture. Vertex entries, like polygon entries, are sorted by texture index so that vertices that use the same texture are together.
+Number of vertices that use the same material. These indicies of the vertices in a group is assumed as them being in order of the vertex index. The first vertex group starts with the first vertex in the vertex index. So if the first VertexCount is 10, then it contains vertices 0-9. If the next VertexCount is 5, then it contains vertices 10-14, and so on... The chief difference between the groups for VertexGroups and VertexMaterialGroups, is that more than one VertexMaterialGroup can reference the same material, while 2 VertexGroups cannot reference the same dag.
 
-#### TextureIndex : WORD
+#### MaterialIndex: WORD
 
-The index of the texture that the vertices use, according to the 0x31Texture List fragment that this fragment references.
+The index of the material that the faces use, according to the 0x31 MaterialPalette fragment contained in this DmSpriteDef2's MaterialPaletteRef. Again, starts with 0.
 
-Data9 entries (there are Size9 of these)
+MeshOp entries (there are MeshOpCount of these)
 
 #### VertexIndex1 : WORD
 
