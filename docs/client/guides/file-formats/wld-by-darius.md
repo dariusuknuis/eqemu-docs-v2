@@ -1592,7 +1592,7 @@ This is similar to CenterX but references the Z axis.
 
 #### Params2[0]: FLOAT
 
-It is unknown what Params2 actually does. It may be an offset for lighting on the mesh. Some placed lights have values for this. You can see some slight change in lighting in an object by adjusting Params2 if you remove the DmRGBtrack reference from an object. It doesn't seem to matter if the 0x2000 is set or not, even though some versions of the client code seem to use Params2 only if the flag is set.
+It is unknown what Params2 actually does. It may be an offset for lighting on the mesh. Some objects that are light sources, like torches and braziers, have values for this. You can see some slight change in lighting in an object by adjusting Params2 if you remove the DmRGBtrack reference from an object. It doesn't seem to matter if the 0x2000 is set or not, even though some versions of the client code seem to use Params2 only if the flag is set.
 
 This first value may be the X component.
 
@@ -1636,29 +1636,29 @@ This is the Max Z coordinate.
 
 #### VertexCount: WORD
 
-Tells how many vertices there are in the mesh. It is a uint16, so that give the maximum number of vertices in a mesh at 65,535.
+Tells how many vertices there are in the mesh. It is a uint16, so that gives the maximum number of vertices in a mesh at 65,535.
 
 #### UVCount : WORD
 
-Tells how many UV. This should equal the number of vertices in the mesh. Presumably this could contain zero if none of the polygons have textures mapped to them (but why would anyone do that?)
+Tells how many UVs there are in the mesh. This usually equals the number of vertices in the mesh. Some zones have border wall meshes that have a simple transparent material and no UVs.
 
 #### NormalsCount : WORD
 
-Tells how many vertex normal entries there are in the mesh. This should equal the number of vertices in the mesh. Presumably this could contain zero if vertices should use polygon normals instead, but I haven’t tried it (vertex normals are preferable anyway).
+Tells how many vertex normal entries there are in the mesh. This should equal the number of vertices in the mesh.
 
 #### ColorCount : WORD
 
-Tells how many vertex color entries are in the mesh. This should equal the number of vertices in the mesh, or zero if there are no vertex color entries. Meshes do not require color entries to work. Color entries are used for illuminating polygons when there is a nearby light source.
+Tells how many vertex color entries are in the mesh. This should equal the number of vertices in the mesh, or zero if the mesh does not use vertex colors. Meshes do not require color entries to work. Zone terrain will usually be the only DmSpriteDef2 meshes that have these.
 
-#### PolygonsCount : WORD
+#### FaceCount : WORD
 
-Tells how many polygons there are in the mesh.
+Tells how many triangle polygons there are in the mesh. All faces in a DmSpriteDef2 mesh must be a triangle.
 
-#### VertexPieceCount : WORD
+#### VertexGroupCount : WORD
 
-This seems to only be used when dealing with animated (mob) models. It tells how many VertexPiece entries there are. Vertices are grouped together by skeleton piece in this case and VertexPiece entries tell the client how many vertices are in each piece. It’s possible that there could be more pieces in the skeleton than are in the meshes it references. Extra pieces have no polygons or vertices and I suspect they are there to define attachment points for objects (e.g. weapons or shields).
+The is the number of vertex groups in the mesh and are present in bone animated models. The entries are referenced by other objects or parameters by index order in which they appear (starting at 0).
 
-#### PolygonTexCount : WORD
+#### FaceMaterialCount : WORD
 
 Tells how many PolygonTex entries there are. Polygons are grouped together by texture and PolygonTex entries tell the client how many polygons there are that use a particular texture.
 
