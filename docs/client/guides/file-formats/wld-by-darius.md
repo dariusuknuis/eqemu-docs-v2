@@ -1515,6 +1515,152 @@ Reference points to a 0x32 Vertex Color fragment
 
 Typically contains zero.
 
+## 0x34 — ParticleCloudDef
+
+### Notes
+
+This represent a particle cloud that is generated when older spell effects are cast, and the older spell effects are enabled. They can also be attached to models to generate particle effects, like seen on Epic weapons. 
+
+### Fields
+
+#### NameReference: DWORD
+
+Standard name reference. See "Basic fragments - NameReference" for details.
+
+#### Flags: DWORD
+
+0x01 - If this is set, the 6 SpawnBox FLOATs will exist.
+0x02 - If this is set, the 6 Box FLOATs will exist.
+0x04 - If this is set, BlitSpriteRef DWORD will exist.
+
+#### ParticleType: DWORD
+
+placeholder. 
+
+#### SpawnType: DWORD
+
+placeholder. 
+
+#### PCloudFlags: DWORD
+
+placeholder.
+
+#### Size: DWORD
+
+placeholder. 
+
+#### GravityMultiplier: FLOAT
+
+placeholder.
+
+#### Gravity X: FLOAT
+
+placeholder.
+
+#### Gravity Y: FLOAT
+
+placeholder.
+
+#### Gravity Z: FLOAT
+
+placeholder.
+
+#### Duration: DWORD
+
+placeholder.
+
+#### SpawnRadius: FLOAT
+
+placeholder.
+
+#### SpawnAngle: FLOAT
+
+placeholder.
+
+#### Lifespan: DWORD
+
+placeholder.
+
+#### SpawnVelocityMultiplier: FLOAT
+
+placeholder.
+
+#### SpawnVelocity X: FLOAT
+
+placeholder.
+
+#### SpawnVelocity Y: FLOAT
+
+placeholder.
+
+#### SpawnVelocity Z: FLOAT
+
+placeholder.
+
+#### SpawnRate: DWORD
+
+placeholder.
+
+#### SpawnScale: FLOAT
+
+placeholder.
+
+#### Tint: DWORD
+
+placeholder. 
+
+#### SpawnBoxMin X: FLOAT
+
+placeholder.
+
+#### SpawnBoxMin Y: FLOAT
+
+placeholder.
+
+#### SpawnBoxMin Z: FLOAT
+
+placeholder.
+
+#### SpawnBoxMax X: FLOAT
+
+placeholder.
+
+#### SpawnBoxMax Y: FLOAT
+
+placeholder.
+
+#### SpawnBoxMax Z: FLOAT
+
+placeholder.
+
+#### BoxMin X: FLOAT
+
+placeholder.
+
+#### BoxMin Y: FLOAT
+
+placeholder.
+
+#### BoxMin Z: FLOAT
+
+placeholder.
+
+#### BoxMax X: FLOAT
+
+placeholder.
+
+#### BoxMax Y: FLOAT
+
+placeholder.
+
+#### BoxMax Z: FLOAT
+
+placeholder.
+
+#### BlitSpriteRef: DWORD
+
+placeholder.
+
 ## 0x35 — GlobalAmbientLightDef
 
 ### Notes
@@ -1668,7 +1814,7 @@ Tells how many vertex material groups there are. Vertices are also group by the 
 
 #### MeshOpCount: WORD
 
-Tells how many MeshOps there are. MeshOps are a method for LOD. They are used if "Level of Detail" is toggled to "ON" in some clients. They are basically a list of instructions of how to decimate the orignal mesh, based on distance from the mesh. Only mob models really have MeshOps. I am not sure they work on object or zone terrain DmSpriteDef2 meshes.
+Tells how many MeshOps there are. MeshOps are a method for LOD. They are used if "Level of Detail" is toggled to "ON" in some clients. They are basically a list of instructions of how to decimate the orignal mesh, based on distance from the mesh. Only mob models really have MeshOps. I am not sure they work on object or zone terrain DmSpriteDef2 meshes. Depending on the MeshOpType field, the first 4 bytes of an entry will either be 2 successive WORDs (MeshOpType 1 to 3) or a FLOAT (MeshOpType 4). The types will be detailed futher in the MeshOpType description further below.
 
 #### FloatingPointScale: WORD
 
@@ -1767,25 +1913,33 @@ The index of the material that the faces use, according to the 0x31 MaterialPale
 
 MeshOp entries (there are MeshOpCount of these)
 
-#### VertexIndex1 : WORD
+#### Index1: WORD (If MeshOpType is 1 to 3)
 
-This seems to reference one of the vertex entries. This field only exists if Data9Type contains a value in the range 1 to 3.
+If MeshOpType is 1 or 2, this is the index of a face in the mesh. If MeshOpType is 3, this is the index of a vertex in the mesh. If MeshOpType is 4, this is instead the bottom half of the FLOAT Offset value described below. 
 
-#### VertexIndex2 : WORD
+#### Index2: WORD (If MeshOpType is 1 to 3)
 
-This seems to reference one of the vertex entries. This field is only valid if Data9Type contains 1. Otherwise, this field must contain zero.
+If MeshOpType is 1, this is the index of a vertex in the mesh. If MeshOpType is 2 or 3, this value is usually zero and not used. If MeshOpType is 4, this is instead the top half of the FLOAT Offset value described below.
 
-#### Offset : FLOAT
+#### Offset: FLOAT (If MeshOpType is 4)
 
-If Data9Type contains 4, then this field exists instead of VertexIndex1 and VertexIndex2 (this field only exists if Data9Type contains 4). Its purpose is unknown. Data9 entries seem to be sorted by this value.
+If MeshOpType 4, this field is a FLOAT, see MeshOpType for usage.
 
-#### Data9Param1 : WORD
+#### FaceVertexIndex: WORD
 
-The purpose of this field is unknown. It seems to only contain values in the range 0 to 2.
+If MeshOpType is not one, this should be zero, and is not used anyway. If MeshOpType is 1, then this can be 0 to 2, and represent a vertex of a face. 0 is the first vertex of a face, 1 is the second vertex of a face, and 2 is the 3rd vertex of a face. These are the vertices in the order they are listed in the face entries.
 
-#### Data9Type : WORD
+#### MeshOpType: WORD
 
-The purpose of this field is unknown, but it seems to control whether VertexIndex1, VertexIndex2, and Offset exist. It can only contain values in the range 1 to 4. It looks like the Data9 entries are broken up into blocks, where each block is terminated by an entry where Data9Type is 4.
+This can contain values from 1 to 4. The types work as follows:
+
+Type 1 (Corner Swap) - Index1 is a face index for a face in the mesh. FaceVertexIndex is the vertex of one of the vertices within that face. Index2 is the vertex index for a vertex in the mesh, and this operation will swap the corner of the face from the FaceVertexIndex vertex to the Index2 vertex.
+
+Type 2 (Face Delete) - Index1 is a face index for a face in the mesh. All the other values will typically be zero. This operation deletes the face.
+
+Type 3 (Vertex Delete) - Index1 is a vertex index for a vertex in the mesh. All the other values will typically be zero. This operation deletes the vertex.
+
+Type 4 (Threshold Distance) - Offset represents a distance where all the MeshOps before it will be enacted. I am not sure how it translates into in-game units. All of the entries after a type 4 MeshOp until the next type 4 MeshOp will be enacted at the distance of that next type 4 MeshOp.
 
 ## 0x37 — Mesh Animated Vertices — PLAIN
 
