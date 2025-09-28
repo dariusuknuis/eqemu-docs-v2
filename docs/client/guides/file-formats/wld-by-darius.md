@@ -1548,7 +1548,7 @@ placeholder.
 0x00004 - RESPAWN
 0x00008 - VIEWRELX
 0x00010 - VIEWRELY
-0x00020 - VIEWRELZ
+0x00020 - VIEWRELZ: Particles will change position on the Z axis depending on the angle of the camera?
 0x00040 - VIEWWARP
 0x00080 - BROWNIAN: This will introduce a brownian motion-like random jiggle to the particles.
 0x00100 - FADE: Particle will become more transparent from when it spawns until it reaches its lifespan, when it will become completely transparent. 
