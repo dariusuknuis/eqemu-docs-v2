@@ -1543,7 +1543,24 @@ placeholder.
 
 #### PCloudFlags: DWORD
 
-placeholder.
+0x00001 - FREE
+0x00002 - COLLISION
+0x00004 - RESPAWN
+0x00008 - VIEWRELX
+0x00010 - VIEWRELY
+0x00020 - VIEWRELZ
+0x00040 - VIEWWARP
+0x00080 - BROWNIAN: This will introduce a brownian motion-like random jiggle to the particles.
+0x00100 - FADE: Particle will become more transparent from when it spawns until it reaches its lifespan, when it will become completely transparent. 
+0x00200 - BOUNDINGBOX
+0x00400 - UPDATE_BBOX
+0x00800 - POINTGRAVITY
+0x01000 - GRAVITY
+0x02000 - FREEDEF
+0x04000 - OBJECTRELATIVE
+0x08000 - PARENTOBJRELATIVE
+0x10000 - SPAWNSCALERELATIVE
+0x20000 - HIDEWITHSPAWNOBJECT
 
 #### Size: DWORD
 
