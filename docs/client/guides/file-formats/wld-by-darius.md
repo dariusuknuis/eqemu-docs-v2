@@ -1531,7 +1531,7 @@ Standard name reference. See "Basic fragments - NameReference" for details.
 
 0x01 - If this is set, the 6 SpawnBox FLOATs will exist.
 0x02 - If this is set, the 6 Box FLOATs will exist.
-0x04 - If this is set, BlitSpriteRef DWORD will exist.
+0x04 - If this is set, BlitSpriteRef DWORD will be used.
 
 #### ParticleType: DWORD
 
@@ -1557,9 +1557,9 @@ placeholder.
 0x00800 - POINTGRAVITY
 0x01000 - GRAVITY
 0x02000 - FREEDEF
-0x04000 - OBJECTRELATIVE
-0x08000 - PARENTOBJRELATIVE
-0x10000 - SPAWNSCALERELATIVE
+0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from.
+0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from.
+0x10000 - SPAWNSCALERELATIVE: Particles will scale with the model if it is resized in the DB or with an effect that resizes the model. Otherwise they will not scale. 
 0x20000 - HIDEWITHSPAWNOBJECT
 
 #### Size: DWORD
