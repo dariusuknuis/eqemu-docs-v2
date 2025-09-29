@@ -1535,7 +1535,12 @@ Standard name reference. See "Basic fragments - NameReference" for details.
 
 #### ParticleType: DWORD
 
-placeholder. 
+Valid values for this seem to be 1-4:
+
+Type 1: Simple one pixel point particle. I have not found a way to affect the appearance of these.
+Type 2: One pixel wide particles with tails. I have not found a way to affect the appearance of these.
+Type 3: Regular camera-facing blit sprite particles. This is the only ParticleType I have seen set on this type of fragment.
+Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unless you are looking up or down on them. Otherwise, they look like the type 3 particles.
 
 #### SpawnType: DWORD
 
@@ -1543,24 +1548,26 @@ placeholder.
 
 #### PCloudFlags: DWORD
 
-0x00001 - FREE
-0x00002 - COLLISION
-0x00004 - RESPAWN
-0x00008 - VIEWRELX
-0x00010 - VIEWRELY
+These are additional flags that control properties of the particles generated for the particle cloud. The names come from some versions of the client code. 
+
+0x00001 - FREE: I don't know what this does.
+0x00002 - COLLISION: I don't know what this does.
+0x00004 - RESPAWN: I don't know what this does.
+0x00008 - VIEWRELX: This will make particles disappear. Not sure what it actually should do.
+0x00010 - VIEWRELY: This will make particles disappear. Not sure what it actually should do.
 0x00020 - VIEWRELZ: Particles will change position on the Z axis depending on the angle of the camera?
-0x00040 - VIEWWARP
+0x00040 - VIEWWARP: This will make particles disappear. Not sure what it actually should do.
 0x00080 - BROWNIAN: This will introduce a brownian motion-like random jiggle to the particles.
 0x00100 - FADE: Particle will become more transparent from when it spawns until it reaches its lifespan, when it will become completely transparent. 
-0x00200 - BOUNDINGBOX
-0x00400 - UPDATE_BBOX
-0x00800 - POINTGRAVITY
-0x01000 - GRAVITY
-0x02000 - FREEDEF
+0x00200 - BOUNDINGBOX: I don't know what this does.
+0x00400 - UPDATE_BBOX: Seems to be required to display any particles.
+0x00800 - POINTGRAVITY: I don't know what this does.
+0x01000 - GRAVITY: I don't know what this does.
+0x02000 - FREEDEF: I don't know what this does.
 0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from.
 0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from.
 0x10000 - SPAWNSCALERELATIVE: Particles will scale with the model if it is resized in the DB or with an effect that resizes the model. Otherwise they will not scale. 
-0x20000 - HIDEWITHSPAWNOBJECT
+0x20000 - HIDEWITHSPAWNOBJECT: This flag is set on every particle cloud I have seen, removing the flag does not seem to do anything.
 
 #### Size: DWORD
 
