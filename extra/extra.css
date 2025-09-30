@@ -1,0 +1,107 @@
+@media only screen and (min-width: 76.25em) {
+    .md-main__inner {
+        max-width: none;
+    }
+    .md-sidebar--primary {
+        left: 0;
+    }
+    .md-sidebar--secondary {
+        right: 0;
+        margin-left: 0;
+        -webkit-transform: none;
+        transform: none;
+    }
+}
+
+#__mermaid_0 {
+    font-size: 16px;
+}
+
+.md-typeset code {
+    background: rgba(0, 0, 0, .9);
+    color: white;
+    border-radius: 5px;
+}
+
+.md-search-result .md-typeset {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    max-height: 120px; /* <- adjust to fit */
+}
+
+.highlight .kc, .highlight .n {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body .md-sidebar--primary .md-sidebar__scrollwrap {
+    border-right: 1px solid #454755;
+}
+
+.md-container {
+    opacity: 1 !important;
+}
+
+@media screen and (min-width: 76.25em) {
+    .md-main::before {
+        content: "";
+        background-size: cover !important;
+        background-repeat: no-repeat !important;
+        background-attachment: fixed !important;
+        position: absolute;
+        z-index: -99999;
+        top: 0px;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        opacity: .03;
+        animation: changeBg 420s infinite;
+        -webkit-transition: background 420s linear;
+        -moz-transition: background 420s linear;
+        -o-transition: background 420s linear;
+        -ms-transition: background 420s linear;
+        transition: background 420s linear;
+
+        animation-duration: 420s;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+    }
+}
+
+@keyframes changeBg {
+    0% { background-image: var(--bg1); }
+    7% { background-image: var(--bg2); }
+    14% { background-image: var(--bg3); }
+    21% { background-image: var(--bg4); }
+    28% { background-image: var(--bg5); }
+    35% { background-image: var(--bg6); }
+    42% { background-image: var(--bg7); }
+    49% { background-image: var(--bg8); }
+    56% { background-image: var(--bg9); }
+    63% { background-image: var(--bg10); }
+    70% { background-image: var(--bg11); }
+    77% { background-image: var(--bg12); }
+    84% { background-image: var(--bg13); }
+    100% { background-image: var(--bg1); }
+}
+
+.md-header { background-color: rgba(14, 20, 24, 0.8) !important; }
+.md-tabs { background-color: rgba(14, 20, 24, 0.6) !important; }
+
+@media screen and (min-width: 76.25em) {
+    .md-nav--lifted>.md-nav__list>.md-nav__item--active>.md-nav__link {
+        background: none;
+        box-shadow: none;
+    }
+}
+
+@media screen and (min-width: 60em) {
+    .md-nav--secondary .md-nav__title {
+        background: none;
+        box-shadow: none;
+    }
+}
+
+img, video {
+    border-radius: 10px;
+}
