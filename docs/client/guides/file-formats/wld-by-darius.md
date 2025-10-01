@@ -1544,7 +1544,12 @@ Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unles
 
 #### SpawnType: DWORD
 
-placeholder. 
+Valid values for this seem to be 1-4:
+
+Type 1: SPHERE - 
+Type 2: PLANE - 
+Type 3: STREAM - 
+Type 4: NONE - 
 
 #### PCloudFlags: DWORD
 
