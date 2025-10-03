@@ -205,27 +205,27 @@ This fragment references one or more texture filenames (BM standing for BitMap?)
 
 Layered textures, like for Luclin player character models, and some terrain textures starting with Luclin, will have 2 texture references; one for a base texture, and one for a overlay. In these cases, the decoded names of the files may have extra information outside of the the actual filename that controls how they are used by the client. For instance, Luclin player character model files will will often have:
 
-ELFCHSK01.DDS
+ELFCHSK01.DDS\
 ELFCH0001.DDS_LAYER
 
 The "_LAYER" texure (ELFCH0001.DDS) will be applied over the base texture (ELFCHSK01.DDS).
 
 and for some terrain textures:
 
-TWICLIFF02.DDS
+TWICLIFF02.DDS\
 ROCK05D.DDS_DETAIL_4.000000
 
 The "_DETAIL" texture (ROCK05D.DDS) will be applied over the base texture (TWICLIFF02.DDS) and a scale will be applied of (4.000000) to the "_DETAIL" texture's UVs.
 
 Many Luclin outdoor zones have more than 2 texture files referenced by the same BMInfo fragment for a system that uses a base texture, a indexed-color bitmap as a mask for multiple textures simultaneously, and then the overlay textures, like this:
 
-TWIBASE1C.DDS
-TWIBASE1CPAL.BMP
-1, 1, 2, GRASS2E.DDS
-2, 1, 3, GRASS2D.DDS
-3, 1, 1, SAND02A.DDS
-4, 1, 0, GRASS2E.DDS
-5, 1, 0, GRASS2D.DDS
+TWIBASE1C.DDS\
+TWIBASE1CPAL.BMP\
+1, 1, 2, GRASS2E.DDS\
+2, 1, 3, GRASS2D.DDS\
+3, 1, 1, SAND02A.DDS\
+4, 1, 0, GRASS2E.DDS\
+5, 1, 0, GRASS2D.DDS\
 6, 1, 0, SAND02A.DDS
 
 Here TWIBASE1C.DDS is a base texture. TWIBASE1CPAL.BMP is an indexed-color bitmap with only a few different colors. The palette bitmap looks roughly like the base texture. 
@@ -1529,54 +1529,54 @@ Standard name reference. See "Basic fragments - NameReference" for details.
 
 #### Flags: DWORD
 
-0x01 - If this is set, the 6 SpawnBox FLOATs will exist.
-0x02 - If this is set, the 6 Box FLOATs will exist.
+0x01 - If this is set, the 6 SpawnBox FLOATs will exist.\
+0x02 - If this is set, the 6 Box FLOATs will exist.\
 0x04 - If this is set, BlitSpriteRef DWORD will be used.
 
 #### ParticleType: DWORD
 
 Valid values for this seem to be 1-4:
 
-Type 1: Simple one pixel point particle. I have not found a way to affect the appearance of these.
-Type 2: One pixel wide particles with tails. I have not found a way to affect the appearance of these.
-Type 3: Regular camera-facing blit sprite particles. This is the only ParticleType I have seen set on this type of fragment.
+Type 1: Simple one pixel point particle. I have not found a way to affect the appearance of these.\
+Type 2: One pixel wide particles with tails. I have not found a way to affect the appearance of these.\
+Type 3: Regular camera-facing blit sprite particles. This is the only ParticleType I have seen set on this type of fragment.\
 Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unless you are looking up or down on them. Otherwise, they look like the type 3 particles.
 
 #### SpawnType: DWORD
 
 Valid values for this seem to be 1-4:
 
-Type 1: SPHERE - 
-Type 2: PLANE - 
-Type 3: STREAM - 
-Type 4: NONE - 
+Type 1: SPHERE - Particles will travel from the emitter randomly in any direction.\
+Type 2: PLANE - Particles will travel from the emitter in one plane based on the SpawnVelocity.\
+Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity.\
+Type 4: NONE - This seems to the do the same thing as Type 3.
 
 #### PCloudFlags: DWORD
 
 These are additional flags that control properties of the particles generated for the particle cloud. The names come from some versions of the client code. 
 
-0x00001 - FREE: I don't know what this does.
-0x00002 - COLLISION: I don't know what this does.
-0x00004 - RESPAWN: I don't know what this does.
-0x00008 - VIEWRELX: This will make particles disappear. Not sure what it actually should do.
-0x00010 - VIEWRELY: This will make particles disappear. Not sure what it actually should do.
-0x00020 - VIEWRELZ: Particles will change position on the Z axis depending on the angle of the camera?
-0x00040 - VIEWWARP: This will make particles disappear. Not sure what it actually should do.
-0x00080 - BROWNIAN: This will introduce a brownian motion-like random jiggle to the particles.
-0x00100 - FADE: Particle will become more transparent from when it spawns until it reaches its lifespan, when it will become completely transparent. 
-0x00200 - BOUNDINGBOX: I don't know what this does.
-0x00400 - UPDATE_BBOX: Seems to be required to display any particles.
-0x00800 - POINTGRAVITY: I don't know what this does.
-0x01000 - GRAVITY: I don't know what this does.
-0x02000 - FREEDEF: I don't know what this does.
-0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from.
-0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from.
-0x10000 - SPAWNSCALERELATIVE: Particles will scale with the model if it is resized in the DB or with an effect that resizes the model. Otherwise they will not scale. 
-0x20000 - HIDEWITHSPAWNOBJECT: This flag is set on every particle cloud I have seen, removing the flag does not seem to do anything.
+0x00001 - FREE: I don't know what this does.\
+0x00002 - COLLISION: I don't know what this does.\
+0x00004 - RESPAWN: I don't know what this does.\
+0x00008 - VIEWRELX: This will make particles disappear. Not sure what it actually should do.\
+0x00010 - VIEWRELY: This will make particles disappear. Not sure what it actually should do.\
+0x00020 - VIEWRELZ: Particles will change position on the Z axis depending on the angle of the camera?\
+0x00040 - VIEWWARP: This will make particles disappear. Not sure what it actually should do.\
+0x00080 - BROWNIAN: This will introduce a brownian motion-like random jiggle to the particles. Doesn't work in the RoF2 client, but does work in the TAKP-EQMac client.\
+0x00100 - FADE: Particle will become more transparent from when it spawns until it reaches its lifespan, when it will become completely transparent.\
+0x00200 - BOUNDINGBOX: I don't know what this does.\
+0x00400 - UPDATE_BBOX: Seems to be required to display any particles.\
+0x00800 - POINTGRAVITY: I don't know what this does.\
+0x01000 - GRAVITY: I don't know what this does.\
+0x02000 - FREEDEF: I don't know what this does.\
+0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from.\
+0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from.\
+0x10000 - SPAWNSCALERELATIVE: Particles will scale with the model if it is resized in the DB or with an effect that resizes the model. Otherwise they will not scale.\ 
+0x20000 - HIDEWITHSPAWNOBJECT: This flag is set on every particle cloud I have seen, removing the flag does not seem to do anything.\
 
 #### Size: DWORD
 
-placeholder. 
+The number of particles that will be generated by the emitter at once. 
 
 #### GravityMultiplier: FLOAT
 
@@ -1608,23 +1608,23 @@ placeholder.
 
 #### Lifespan: DWORD
 
-placeholder.
+The amount of time, in milliseconds, that the particle will exist.
 
 #### SpawnVelocityMultiplier: FLOAT
 
-placeholder.
+This value will multiply all 3 of the following SpawnVelocity values. Setting to negative will cause particles to reverse direction.
 
 #### SpawnVelocity X: FLOAT
 
-placeholder.
+How fast the particle moves in the X axis.
 
 #### SpawnVelocity Y: FLOAT
 
-placeholder.
+How fast the particle moves in the Y axis.
 
 #### SpawnVelocity Z: FLOAT
 
-placeholder.
+How fast the particle moves in the Z axis.
 
 #### SpawnRate: DWORD
 
@@ -1632,11 +1632,11 @@ placeholder.
 
 #### SpawnScale: FLOAT
 
-placeholder.
+The size of the particles. Only seems to affect the blit type particles (Types 3 and 4).
 
 #### Tint: DWORD
 
-placeholder. 
+The color of the particle. If the particle is not greyscale, adjusting this will not have much effect. You can't make a blue blitsprite red by adjusting the color. Each byte of the field is a 0-255 color values in BGRA order.
 
 #### SpawnBoxMin X: FLOAT
 
@@ -1688,7 +1688,7 @@ placeholder.
 
 #### BlitSpriteRef: DWORD
 
-placeholder.
+References a 0x26 BlitSpriteDef fragment directly. It does not use the 0x27 BlitSprite reference fragment. This will be the image that the particles will show up as, if the 0x04 flag value is set, and the ParticleType is 3.
 
 ## 0x35 — GlobalAmbientLightDef
 
@@ -1730,11 +1730,11 @@ Standard name reference. See "Basic fragments - NameReference" for details.
 
 Mobs DmSpriteDef2 meshes tend to have 0x00003 for flags. Objects often have 0x14003, and sometimes 0x10003. Terrain usually has 0x18003, and rarely 0x10003 (Chardok).
 
-0x00001 - If this is set, the CenterOffset values will be used, otherwise, the client will set CenterOffset to 0.0x, 0.0y, 0.0z.
-0x00002 - If this is set, the BoundingRadius value will be used, otherwise, the client will set BoundingRadius to 1.0.
-0x02000 - If this is set, "Params2" will be used. I am not sure what Params2 does when this is set or not. I have never seen it set on a DmSpriteDef2 mesh.
-0x04000 - If this is set, the BoundingBox values will be used, otherwise, I believe the client will make the bounding box from the AABB of the DmSpriteDef2 mesh.
-0x08000 - If this is set, the vertex color alpha value will be used. Effectively this turns off vertex colors on a terrain mesh if not set.
+0x00001 - If this is set, the CenterOffset values will be used, otherwise, the client will set CenterOffset to 0.0x, 0.0y, 0.0z.\
+0x00002 - If this is set, the BoundingRadius value will be used, otherwise, the client will set BoundingRadius to 1.0.\
+0x02000 - If this is set, "Params2" will be used. I am not sure what Params2 does when this is set or not. I have never seen it set on a DmSpriteDef2 mesh.\
+0x04000 - If this is set, the BoundingBox values will be used, otherwise, I believe the client will make the bounding box from the AABB of the DmSpriteDef2 mesh.\
+0x08000 - If this is set, the vertex color alpha value will be used. Effectively this turns off vertex colors on a terrain mesh if not set.\
 0x10000 - From the way this flag is used, it seems it should toggle collision on objects and terrain meshes. In the TAKP/EQMac client, it only toggles collison on objects, and has no effect on terrain. 
 
 #### MaterialPaletteRef: DWORD
