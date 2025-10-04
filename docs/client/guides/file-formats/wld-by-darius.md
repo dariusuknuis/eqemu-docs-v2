@@ -1422,60 +1422,90 @@ Reference points to a 0x37 Mesh Animated Vertices fragment.
 
 Typically contains zero.
 
-## 0x30 — Texture — REFERENCE
+## 0x30 — MaterialDef
 
-Reference points to a 0x05 Texture Bitmap Info Reference fragment. 
+### Notes
 
-### Fields
-
-#### Flags : DWORD
-
-Bit 1 ........ Typically 1. If set to 1, then the Pair field exists.
-
-#### Params1 : DWORD
-
-Bit 0 ........ Apparently must be 1 if the texture isn’t transparent.\
-Bit 1 ........ Set to 1 if the texture is masked (e.g. tree leaves).\
-Bit 2 ........ Set to 1 if the texture is semi-transparent but not masked. \
-Bit 3 ........ Set to 1 if the texture is masked and semi-transparent.\
-Bit 4 ........ Set to 1 if the texture is masked but not semi-transparent. \
-Bit 31 ...... Apparently must be 1 if the texture isn’t transparent.
-
-To make a fully transparent texture, set Params1 to 0.
-
-#### Params2 : DWORD
-
-Typically contains 0x004E4E4E, but I’ve also seen 0xB2B2B2. Could this be an RGB reflectivity value?
-
-#### Params3[0] : FLOAT
-
-Typically contains 0. Its purpose is unknown.
-
-#### Params3[1] : FLOAT
-
-Typically contains 0 for transparent textures and 0.75 for all others. Its purpose is unknown.
-
-#### Pair : DATAPAIR
-
-Only exists if Bit 1 of Flags is set. Typically contains 0 in both fields. Its purpose is unknown.
-
-## 0x31 — Texture List — PLAIN
+This fragment defines a material that is used with meshes. It contains texture references, and shader settings. If multiple files load a material with the same name, one will overwrite the other.
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Must contain zero.
+Standard name reference. See "Basic fragments - NameReference" for details.
 
-#### Size1 : DWORD
+#### Flags: DWORD
 
-Tells how many fragment references this fragment contains.
+0x01 - If this is set, the material will double-sided (also known as two-sided).\
+0x02 - If this is set, the two UVShiftPerMs FLOATs will exist.
 
-#### Fragments : DWORDs
+#### RenderMethod: DWORD
 
-There are Size1 fragment references. Each refers to a 0x30 Texture fragment.
+This value contains a mix of single-bit flags and multi bit fields that control properties of the material shader. Some of them seem to be deprecated, even in the earlier versions of the client, but are decribed for completeness.
 
-## 0x32 — Vertex Color — PLAIN
+Bits   0-1: Drawstyle - Seems to be mostly non-functional, except in some versions of the client, a value of 2 here will cause culling of geometry near the center of the camera frustrum. Some sources, like the WORLDCOM.EXE app, translate a value of 2 in this field to "WIREFRAME" and 3 to "SOLIDFILL".\
+Bits   2-4: Lighting - Seems to be mostly non-functional. WORLDCOM.EXE translates a value of 0 in this field to "ZEROINTENSITY", 2 to "CONSTANT", 4 to "AMBIENT", and 5 to "SCALEDAMBIENT".\
+Bits   5-6: Shading - Seems to be mostly non-functional. WORLDCOM.EXE translates a value of 2 in this field to "GOURAUD1", and 3 to "GOURAUD2".\
+Bit      7: 0x80 (Masked Transparency) - If this is set, the material will use alpha transparency in textures that have an alpha channel, or in indexed-color bitmaps that have the first 2 bytes of the pixel data the same color as the 0-index color. In that case, all the pixels of that color in the bitmap will show 100% transparent.\
+Bits  8-15: Texture - If any of these bits are set, the material will use the texture that the SimpleSprite reference ultimately points to.\
+Bits 16-19: Alpha Blend Opacity - This is the percentage opacity of the material if the Alpha Blend flag is set. The value of these 4 bits are basically 0-15 and the opacity can be calculated as field/16 * 100.\
+Bit     20: 0x100000 (Additive flag) - If the Alpha Blend flag is set, this flag being set will cause the alpha blend to be additive, and it will also disable fog on the material, turn on the masked transparency of the 0x80 flag, and it will increase the opacity approximately 6.25%.\
+Bit 	21: 0x200000 - This flag seems to have originally be used to allow some type of dynamic lighting, but the value seems to be overwritten by the client, and not used from the RenderMethod.\
+Bit    	24: 0x1000000 (Alpha Blend flag) - If this is set it will in effect apply an alpha transparency to the whole material with a percent opacity set in the Alpha Blend Opacity field. It will also disable the masked transparency, unless the 0x200000 flag is set.\
+Bit 	30: 0x40000000 - This flag seems to have originally be used to force use of pre-baked lighting like vertex colors, but the value seems to be overwritten by the client, and not used from the RenderMethod.\
+Bit     31: 0x80000000 (Userdefined flag) - If this is set, the rest of the bits of the RenderMethod are not read as individual fields or flags. The entire DWORD is compared to a table of prebuilt RenderMethods, and those values are used for the material. For instance, a value of 0x80000017 will be translated to values of 0x011B0507, being used in-game, which is Additive Alpha Blend transparency of 68.75% opacity that is textured.
+
+A value of 0x00000000 will be a fully transparent material.
+
+#### RGBPen: DWORD
+
+The field contains RGB (or possibly BGR) color values, but I have not found how or where it is applied.
+
+#### Brightness: FLOAT
+
+Sometimes referred to as ConstantIntensity in client code. It is not clear what this does. Usually 0.
+
+#### ScaledAmbient: FLOAT
+
+I've seen this have values of 0, .75, and 1.0 most commonly. Also not clear what it does.
+
+#### SimpleSpriteRef: DWORD
+
+References a 0x05 SimpleSprite fragment, which in turn references a 0x04 SimpleSpriteDef fragment. This may be empty if the RenderMethod does not use a texture.
+
+#### UVShiftPerMs U: FLOAT
+
+Only exists if the 0x02 flag is set. Always contains 0.0. The two UVShiftPerMs values are used in the functions that control the display of the sky, but those functions also overwrite the values in the material. If you disable this overwrite, you can manually set the scrolling for the sky textures. This is the U value of the UV shift per millisecond. 
+
+#### UVShiftPerMs V: FLOAT
+
+Only exists if the 0x02 flag is set. This is the V value of the UV shift per millisecond.
+
+## 0x31 — MaterialPalette
+
+### Notes
+
+This fragment is basically a list of materials that a mesh can reference. The mesh will reference this type of fragment directly.
+
+#### NameReference: DWORD
+
+Standard name reference. See "Basic fragments - NameReference" for details.
+
+### Fields
+
+#### Flags: DWORD
+
+Must contain zero. It's not read by the client code.
+
+#### MaterialCount: DWORD
+
+Tells how many 0x30 MaterialDef fragment references this fragment contains.
+
+#### MaterialRefs: DWORDs
+
+There are MaterialCount fragment references. Each refers to a 0x30 MaterialDef fragment.
+
+## 0x32 — DmRGBTrackDef
 
 ### Fields
 
