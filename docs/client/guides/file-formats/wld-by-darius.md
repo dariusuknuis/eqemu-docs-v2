@@ -1446,12 +1446,12 @@ This value contains a mix of single-bit flags and multi bit fields that control 
 Bits   0-1: Drawstyle - Seems to be mostly non-functional, except in some versions of the client, a value of 2 here will cause culling of geometry near the center of the camera frustrum. Some sources, like the WORLDCOM.EXE app, translate a value of 2 in this field to "WIREFRAME" and 3 to "SOLIDFILL".\
 Bits   2-4: Lighting - Seems to be mostly non-functional. WORLDCOM.EXE translates a value of 0 in this field to "ZEROINTENSITY", 2 to "CONSTANT", 4 to "AMBIENT", and 5 to "SCALEDAMBIENT".\
 Bits   5-6: Shading - Seems to be mostly non-functional. WORLDCOM.EXE translates a value of 2 in this field to "GOURAUD1", and 3 to "GOURAUD2".\
-Bit      7: 0x80 (Masked Transparency) - If this is set, the material will use alpha transparency in textures that have an alpha channel, or in indexed-color bitmaps that have the first 2 bytes of the pixel data the same color as the 0-index color. In that case, all the pixels of that color in the bitmap will show 100% transparent.\
+Bit      7: 0x00000080 (Masked Transparency) - If this is set, the material will use alpha transparency in textures that have an alpha channel, or in indexed-color bitmaps that have the first 2 bytes of the pixel data the same color as the 0-index color. In that case, all the pixels of that color in the bitmap will show 100% transparent.\
 Bits  8-15: Texture - If any of these bits are set, the material will use the texture that the SimpleSprite reference ultimately points to.\
 Bits 16-19: Alpha Blend Opacity - This is the percentage opacity of the material if the Alpha Blend flag is set. The value of these 4 bits are basically 0-15 and the opacity can be calculated as field/16 * 100.\
-Bit     20: 0x100000 (Additive flag) - If the Alpha Blend flag is set, this flag being set will cause the alpha blend to be additive, and it will also disable fog on the material, turn on the masked transparency of the 0x80 flag, and it will increase the opacity approximately 6.25%.\
-Bit 	21: 0x200000 - This flag seems to have originally be used to allow some type of dynamic lighting, but the value seems to be overwritten by the client, and not used from the RenderMethod.\
-Bit    	24: 0x1000000 (Alpha Blend flag) - If this is set it will in effect apply an alpha transparency to the whole material with a percent opacity set in the Alpha Blend Opacity field. It will also disable the masked transparency, unless the 0x200000 flag is set.\
+Bit     20: 0x00100000 (Additive flag) - If the Alpha Blend flag is set, this flag being set will cause the alpha blend to be additive, and it will also disable fog on the material, turn on the masked transparency of the 0x80 flag, and it will increase the opacity approximately 6.25%.\
+Bit 	21: 0x00200000 - This flag seems to have originally be used to allow some type of dynamic lighting, but the value seems to be overwritten by the client, and not used from the RenderMethod.\
+Bit    	24: 0x01000000 (Alpha Blend flag) - If this is set it will in effect apply an alpha transparency to the whole material with a percent opacity set in the Alpha Blend Opacity field. It will also disable the masked transparency, unless the 0x200000 flag is set.\
 Bit 	30: 0x40000000 - This flag seems to have originally be used to force use of pre-baked lighting like vertex colors, but the value seems to be overwritten by the client, and not used from the RenderMethod.\
 Bit     31: 0x80000000 (Userdefined flag) - If this is set, the rest of the bits of the RenderMethod are not read as individual fields or flags. The entire DWORD is compared to a table of prebuilt RenderMethods, and those values are used for the material. For instance, a value of 0x80000017 will be translated to values of 0x011B0507, being used in-game, which is Additive Alpha Blend transparency of 68.75% opacity that is textured.
 
@@ -1549,7 +1549,7 @@ Typically contains zero.
 
 ### Notes
 
-This represent a particle cloud that is generated when older spell effects are cast, and the older spell effects are enabled. They can also be attached to models to generate particle effects, like seen on Epic weapons. 
+This represent a particle cloud that is generated when older spell effects are cast, and the older spell effects are enabled. They can also be attached to models to generate particle effects, like seen on Epic weapons. Typically they are attached to bones (also known as dags) in a model. 
 
 ### Fields
 
@@ -1576,9 +1576,9 @@ Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unles
 
 Valid values for this seem to be 1-4:
 
-Type 1: SPHERE - Particles will travel from the emitter randomly in any direction.\
-Type 2: PLANE - Particles will travel from the emitter in one plane based on the SpawnVelocity.\
-Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity.\
+Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the X/Y/Z SpawnVelocity. Affected by X/Y/Z Gravity.\
+Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by X/Y/Z Gravity.\
+Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity.No movement with SpawnVelocityMultiplier alone. Affected by X/Y/Z Gravity.\
 Type 4: NONE - This seems to the do the same thing as Type 3.
 
 #### PCloudFlags: DWORD
@@ -1599,8 +1599,8 @@ These are additional flags that control properties of the particles generated fo
 0x00800 - POINTGRAVITY: I don't know what this does.\
 0x01000 - GRAVITY: I don't know what this does.\
 0x02000 - FREEDEF: I don't know what this does.\
-0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from.\
-0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from.\
+0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from. XYZ coordinates are also relative to the object.\
+0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from. XYZ coordinates are also relative to the parent of the object.\
 0x10000 - SPAWNSCALERELATIVE: Particles will scale with the model if it is resized in the DB or with an effect that resizes the model. Otherwise they will not scale.\ 
 0x20000 - HIDEWITHSPAWNOBJECT: This flag is set on every particle cloud I have seen, removing the flag does not seem to do anything.\
 
@@ -1610,7 +1610,7 @@ The number of particles that will be generated by the emitter at once.
 
 #### GravityMultiplier: FLOAT
 
-placeholder.
+Gravity is a 
 
 #### Gravity X: FLOAT
 
