@@ -281,7 +281,7 @@ Contains the number of 0x03 BMInfo references.
 
 Exists if 0x04 flag is set. Doesn't seem to do anything.
 
-#### Sleep : DWORD
+#### Sleep: DWORD
 
 Exists if 0x08 flag is set. It is the time in milliseconds between frames. If there are multiple frames and Sleep exists, then the simple sprite will be animated.
 
@@ -305,7 +305,7 @@ Standard name reference. See "Basic fragments - NameReference" for details.
 
 Reference to a 0x04 SimpleSpriteDef fragment. See "Basic fragments - Reference" for details.
 
-#### Flags : DWORD
+#### Flags: DWORD
 
 0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read.
 0x40 - Toggle for "SKIPFRAMES". I have no idea what it does does.
@@ -318,7 +318,7 @@ This fragment is rarely used. It describes objects that are purely two-dimension
 
 ### Fields
 
-#### Flags : DWORD
+#### Flags: DWORD
 
 Its purpose is unknown. The function of the known bits is as follows:
 
@@ -425,7 +425,7 @@ Its purpose is unknown. Only exists if bit 5 of Params7Flags is 1.
 
 Their purpose is unknown. Only exists if bit 5 of Params7Flags is 1.
 
-## 0x07 — Camera Reference — REFERENCE
+## 0x07 — 2DSprite
 
 Reference points to a 0x06 Two-dimensional Object fragment. 
 
@@ -435,15 +435,22 @@ Reference points to a 0x06 Two-dimensional Object fragment.
 
 Its purpose is unknown, but it always seems to contain 0.
 
-## 0x08 — Camera — PLAIN
+## 0x08 — 3DSpriteDef
 
 ### Notes
 
 This fragment is poorly understood. It seems to contain 26 parameters, some of which are DWORDS (32-bit integers) and some of which are FLOATS (32-bit floating-point values). Until more is known, they are here described as Params[0..25] and their known values are documented.
 
-In main zone files, the name of this fragment always seems to be CAMERA_DUMMY. 
-
 ### Fields
+
+#### NameReference: DWORD
+
+Standard name reference. See "Basic fragments - NameReference" for details. In main zone files, the name of this fragment always seems to be CAMERA_DUMMY.
+
+#### Flags: DWORD
+
+0x01 - If set CenterOffset exists.\
+
 
 All fields not mentioned contain zero (0).
 
@@ -1507,43 +1514,59 @@ There are MaterialCount fragment references. Each refers to a 0x30 MaterialDef f
 
 ## 0x32 — DmRGBTrackDef
 
+### Notes
+
+This fragment is typically referenced 0x33 DmRGBTrack reference fragment which in turn is referenced by a 0x15 Actor fragment, which used for object placement in a zone. It is used to set pre-baked lighting for objects. It can also be animated, but I have never seen it used like that.
+
 ### Fields
 
-#### Data1 : DWORD
+#### NameReference: DWORD
 
-Typically contains 1. Its purpose is unknown.
+Standard name reference. See "Basic fragments - NameReference" for details.
 
-#### Size1 : DWORD
+#### Flags: DWORD
 
-Tells how many color values are in the VertexColors list. It should be equal to the number of vertices in the placeable object, as contained in its 0x36 Mesh fragment.
+0x01 - Apparently this lets the Alpha value of the RGBAFrames be used. Have not really tested it.
 
-#### Data2 : DWORD
+#### ColorCount: DWORD
 
-Typically contains 1. Its purpose is unknown.
+Tells how many color values are in each RGBAFrame. It should be equal to the number of vertices in the placeable object, as contained in its 0x36 DmSpriteDef2 fragment.
 
-#### Data3 : DWORD
+#### FrameCount: DWORD
 
-Typically contains 200. Its purpose is unknown.
+The is the number of RGBAFrames.
+
+#### Sleep: DWORD
+
+This is the number of milliseconds between RGBAFrames, if FrameCount is > 1.
 
 #### Data4 : DWORD
 
 Typically contains 0. Its purpose is unknown.
 
-#### VertexColors : DWORDs
+#### RGBAFrame: DWORDs
 
-This contains an RGBA color value for each vertex in the placeable object. It specifies the additional color to be applied to the vertex, as if that vertex has been illuminated by a nearby light source. The A value isn’t fully understood; I believe it represents an alpha as applied to the texture, such that 0 makes the polygon a pure color and 0xFF either illuminates an unaltered texture or mutes the illumination completely. That is, it’s either a blending value or an alpha value. Further experimentation is required. 0xD9 seems to be a good (typical) A value for most illuminated vertices.
+This contains an RGBA color value for each vertex in a mesh that references it. It applies vertex colors to the mesh. If FrameCount is > 1, there will be FrameCount RGBAFrame DWORDs, and the colors will animate. Each byte of the DWORD is a 0-255 value and the actual order is BGRA, or Blue, Green, Red,  and Alpha. The alpha value is overall brightness.
 
-This field works in exactly the same way as it does in the 0x36 Mesh fragment.
+## 0x33 — DmRGBTrack
 
-## 0x33 — Vertex Color Reference — REFERENCE
+### Notes
 
-Reference points to a 0x32 Vertex Color fragment 
+This is the reference fragment for a 0x32 DmRGBTrackDef fragment.
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Typically contains zero.
+Standard name reference. See "Basic fragments - NameReference" for details.
+
+#### TrackReference: DWORD
+
+Reference to a 0x32 DmRGBTrackDef fragment. See "Basic fragments - Reference" for details.
+
+#### Flags: DWORD
+
+This may actually be a float that is hard coded to 1.0 by the client.
 
 ## 0x34 — ParticleCloudDef
 
@@ -1576,9 +1599,9 @@ Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unles
 
 Valid values for this seem to be 1-4:
 
-Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the X/Y/Z SpawnVelocity. Affected by X/Y/Z Gravity.\
-Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by X/Y/Z Gravity.\
-Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity.No movement with SpawnVelocityMultiplier alone. Affected by X/Y/Z Gravity.\
+Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the XYZ SpawnVelocity. Affected by XYZ Gravity.\
+Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity.\
+Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity.No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity.\
 Type 4: NONE - This seems to the do the same thing as Type 3.
 
 #### PCloudFlags: DWORD
@@ -1610,19 +1633,19 @@ The number of particles that will be generated by the emitter at once.
 
 #### GravityMultiplier: FLOAT
 
-Gravity is a 
+Gravity is a movement property similar to SpawnVelocity. Just setting the GravityMultiplier alone will not make particles move. You must also set one of the XYZ Gravity values as well. If PCloudFlags 0x4000 or 0x8000 are set, then the gravity coordinate system is local to the object or object parent. Having negative values will cause particles to "fall" in the opposite direction.
 
 #### Gravity X: FLOAT
 
-placeholder.
+How fast particles will "fall" in the X direction.
 
 #### Gravity Y: FLOAT
 
-placeholder.
+How fast particles will "fall" in the Y direction.
 
 #### Gravity Z: FLOAT
 
-placeholder.
+How fast particles will "fall" in the Z direction.
 
 #### Duration: DWORD
 
@@ -1642,7 +1665,7 @@ The amount of time, in milliseconds, that the particle will exist.
 
 #### SpawnVelocityMultiplier: FLOAT
 
-This value will multiply all 3 of the following SpawnVelocity values. Setting to negative will cause particles to reverse direction.
+This value will multiply all 3 of the following SpawnVelocity values. If PCloudFlags 0x4000 or 0x8000 are set, then the coordinate system is local to the object or object parent. Setting to negative will cause particles to reverse direction.
 
 #### SpawnVelocity X: FLOAT
 
@@ -1718,7 +1741,7 @@ placeholder.
 
 #### BlitSpriteRef: DWORD
 
-References a 0x26 BlitSpriteDef fragment directly. It does not use the 0x27 BlitSprite reference fragment. This will be the image that the particles will show up as, if the 0x04 flag value is set, and the ParticleType is 3.
+References a 0x26 BlitSpriteDef fragment directly. It does not use the 0x27 BlitSprite reference fragment. This will be the image that the particles will show up as, if the 0x04 flag value is set, and the ParticleType is 3 or 4.
 
 ## 0x35 — GlobalAmbientLightDef
 
@@ -2000,52 +2023,56 @@ Type 3 (Vertex Delete) - Index1 is a vertex index for a vertex in the mesh. All 
 
 Type 4 (Threshold Distance) - Offset represents a distance where all the MeshOps before it will be enacted. I am not sure how it translates into in-game units. All of the entries after a type 4 MeshOp until the next type 4 MeshOp will be enacted at the distance of that next type 4 MeshOp.
 
-## 0x37 — Mesh Animated Vertices — PLAIN
+## 0x37 — DmTrackDef2
 
 ### Notes
 
-This fragment contains sets of vertex values to be substituted for the vertex values in a 0x36 Mesh fragment if that mesh is animated. For example, if a mesh has 50 vertices then this fragment will have one or more sets of 50 vertices, one set for each animation frame. The vertex values in this fragment will then be used instead of the vertex values in the 0x36 Mesh fragment as the client cycles through the animation frames.
+This fragment contains sets of vertex values to be substituted for the vertex values in a mesh for a vertex animation. For example, if a mesh has 50 vertices then this fragment will have one or more sets of 50 vertices, one set for each animation frame. The vertex values in this fragment will then be used instead of the vertex values in the mesh as the client cycles through the animation frames. This is typically referenced through a 0x2F DMTrack fragment by a 0x36 DmSpriteDef2 fragment.
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Typically contains zero. Its purpose is unknown.
+Standard name reference. See "Basic fragments - NameReference" for details.
 
-#### VertexCount : WORD
+#### Flags: DWORD
 
-Should be equal to the number of vertices in the mesh, as contained in its 0x36 Mesh fragment.
+Typically contains zero. Does not seem to be read by the client.
 
-#### FrameCount : WORD
+#### VertexCount: WORD
+
+Should be equal to the number of vertices in the mesh that ultimately references it.
+
+#### FrameCount: WORD
 
 The number of animation frames.
 
-#### Param1 : WORD
+#### Sleep: WORD
 
-Typically contains 100. Its purpose is unknown.
+This is the number of milliseconds between frames of the animation.
 
-#### Param2 : WORD
+#### Param2: WORD
 
 Typically contains zero. Its purpose is unknown.
 
-#### Scale : WORD
+#### FPScale : WORD
 
-This works in exactly the same way as the Scale field in the 0x36 Mesh fragment. By dividing the vertex values by (1 shl Scale), real vertex values are created.
+This works in exactly the same way as the Scale field in the 0x36 DmSpriteDef2 fragment. By dividing the vertex positional values by 2^FPScale, you get the actual vertex positions.
 
 Frame entries (there are FrameCount of these):\
 Vertex entries (there are VertexCount of these):
 
-#### X : SIGNED WORD (signed 16-bit value)
+#### Vertex X: SIGNED WORD (signed 16-bit value)
 
-X component of the vertex position, multiplied by (1 shl Scale).
+X component of the vertex position, divided by 2^FPScale.
 
-#### Y : SIGNED WORD (signed 16-bit value)
+#### Vertex Y: SIGNED WORD (signed 16-bit value)
 
-Y component of the vertex position, multiplied by (1 shl Scale).
+Y component of the vertex position, divided by 2^FPScale.
 
-#### Z : SIGNED WORD (signed 16-bit value)
+#### Vertex Z: SIGNED WORD (signed 16-bit value)
 
-Z component of the vertex position, multiplied by (1 shl Scale).
+Z component of the vertex position, divided by 2^FPScale.
 
 #### Size6: WORD
 
