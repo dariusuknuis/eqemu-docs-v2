@@ -439,7 +439,7 @@ Its purpose is unknown, but it always seems to contain 0.
 
 ### Notes
 
-This fragment is poorly understood. It seems to contain 26 parameters, some of which are DWORDS (32-bit integers) and some of which are FLOATS (32-bit floating-point values). Until more is known, they are here described as Params[0..25] and their known values are documented.
+This type of fragment was originally also used for 3D mob models in Tanarus, but seems to be only used for the "CAMERA_DUMMY" object that the player actor references since the earliest versions of the EverQuest client.
 
 ### Fields
 
@@ -450,28 +450,52 @@ Standard name reference. See "Basic fragments - NameReference" for details. In m
 #### Flags: DWORD
 
 0x01 - If set CenterOffset exists.\
+0x02 - If set BoundingRadius exists.\
+0x20 - This is a toggle for the normals for lighting to interact with face normals (if not set) or smooth shaded normals (if set), for the 3d meshes that this type of fragment was originally used for. Called "ENABLEGOURAUD2" in WLDCOM.EXE printout.\
+0x40 - If set 4 NormalABCD FLOATs will exist at the end of each BspNode.
 
+#### VertexCount: DWORD
 
-All fields not mentioned contain zero (0).
+The is the number of vertices in the "mesh". Vertices are first defined globally for the mesh and then referenced by the BspNodes by index. In EverQuest it is always the same 4 vertices.
 
-| Param       | Value | Type  |
-| ----------- | ----- | ----- |
-| Params[1]  | 0     | DWORD |
-| Params[2]  | 1     | FLOAT |
-| Params[5]  | -1.0  | FLOAT |
-| Params[6]  | 1.0   | FLOAT |
-| Params[8]  | 1.0   | FLOAT |
-| Params[9]  | 1.0   | FLOAT |
-| Params[11] | 1.0   | FLOAT |
-| Params[12] | -1.0  | FLOAT |
-| Params[14] | -1.0  | FLOAT |
-| Params[15] | -1.0  | FLOAT |
-| Params[16] | 4     | DWORD |
-| Params[20] | 1     | DWORD |
-| Params[21] | 2     | DWORD |
-| Params[22] | 3     | DWORD |
-| Params[24] | 1     | DWORD |
-| Params[25] | 11    | DWORD |
+#### BspNodeCount: DWORD
+
+Number of BspNodes that are detailed further down. There is always only 1 in this fragment in EverQuest, but in Tanarus this could have many nodes, and each one seemed to be a piece of the mesh with a unique material.
+
+#### SphereListRef: DWORD
+
+Placeholder.
+
+#### CenterOffset X: FLOAT
+
+This field and the next two fields only exist if the 0x01 flag is set. They never exist in this type of fragment in EverQuest, but in Tanarus, many models have this set. Mostly likely adjusts the position of the model. In WLDCOM.EXE printouts, it is formatted exactly like other CenterOffset values, so this is surely the X axis component.
+
+#### CenterOffset Y: FLOAT
+
+Only exists if the 0x01 flag is set. This is similar to CenterOffset X but references the Y axis.
+
+#### CenterOffset Z: FLOAT
+
+Only exists if the 0x01 flag is set. This is similar to CenterOffset X but references the Z axis.
+
+#### BoundingRadius: FLOAT
+
+This field only exists if the 0x02 flag is set. If this works anything like in EverQuest for other mesh types, it most likely was the greatest distance any vertex could be from the center of the mesh. It never exists for the fragment type in EverQuest, but in Tanarus many models had this set.
+
+Vertex entries (there are VertexCount of these):
+
+#### Vertex X: FLOAT
+
+X component of the vertex position.
+
+#### Vertex Y: FLOAT
+
+Y component of the vertex position.
+
+#### Vertex Z: FLOAT
+
+Z component of the vertex position. 
+
 
 ## 0x09 — Camera Reference — REFERENCE
 
