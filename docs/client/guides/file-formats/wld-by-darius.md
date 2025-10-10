@@ -268,9 +268,9 @@ Standard name reference. See "Basic fragments - NameReference" for details.
 
 #### Flags: DWORD
 
-0x04 - If set the CurrentFrame field will exist
-0x08 - If set the Sleep field will exist
-0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read, but doesn't seem to be read by the client.
+0x04 - If set, the CurrentFrame field will exist.\
+0x08 - If set, the Sleep field will exist.\
+0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read, but doesn't seem to be read by the client.\
 0x40 - Toggle for "SKIPFRAMES". I have no idea what it does does.
 
 #### FrameCount: DWORD
@@ -307,7 +307,7 @@ Reference to a 0x04 SimpleSpriteDef fragment. See "Basic fragments - Reference" 
 
 #### Flags: DWORD
 
-0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read.
+0x10 - Always seems to be set, probably "HAVESKIPFRAMES", which allows the 0x40 flag to be read.\
 0x40 - Toggle for "SKIPFRAMES". I have no idea what it does does.
 
 ## 0x06 — 2DSpriteDef
@@ -439,20 +439,20 @@ Its purpose is unknown, but it always seems to contain 0.
 
 ### Notes
 
-This type of fragment was originally also used for 3D mob models in Tanarus, but seems to be only used for the "CAMERA_DUMMY" object that the player actor references since the earliest versions of the EverQuest client.
+This type of fragment was originally also used for 3D mob models in Tanarus, but seems to be only used for the "CAMERA_DUMMY" object that the player actor references since the earliest versions of the EverQuest client. Changing the values of the various fields doesn't seem to do much.
 
 ### Fields
 
 #### NameReference: DWORD
 
-Standard name reference. See "Basic fragments - NameReference" for details. In main zone files, the name of this fragment always seems to be CAMERA_DUMMY.
+Standard name reference. See "Basic fragments - NameReference" for details. In main zone files, the name of this fragment always seems to be "CAMERA_DUMMY".
 
 #### Flags: DWORD
 
-0x01 - If set CenterOffset exists.\
-0x02 - If set BoundingRadius exists.\
+0x01 - If set, CenterOffset exists.\
+0x02 - If set, BoundingRadius exists.\
 0x20 - This is a toggle for the normals for lighting to interact with face normals (if not set) or smooth shaded normals (if set), for the 3d meshes that this type of fragment was originally used for. Called "ENABLEGOURAUD2" in WLDCOM.EXE printout.\
-0x40 - If set 4 NormalABCD FLOATs will exist at the end of each BspNode.
+0x40 - If set, 4 NormalABCD FLOATs will exist at the end of each BspNode.
 
 #### VertexCount: DWORD
 
@@ -464,7 +464,7 @@ Number of BspNodes that are detailed further down. There is always only 1 in thi
 
 #### SphereListRef: DWORD
 
-Placeholder.
+There is a reference to a 0x1a SphereList fragment, which in turn references a 0x19 SphereListDef fragment. This was apparently a collision volume in Tanarus, but doesn't seem to be used in any EverQuest files.
 
 #### CenterOffset X: FLOAT
 
@@ -482,7 +482,7 @@ Only exists if the 0x01 flag is set. This is similar to CenterOffset X but refer
 
 This field only exists if the 0x02 flag is set. If this works anything like in EverQuest for other mesh types, it most likely was the greatest distance any vertex could be from the center of the mesh. It never exists for the fragment type in EverQuest, but in Tanarus many models had this set.
 
-Vertex entries (there are VertexCount of these):
+**Vertex entries (there are VertexCount of these):**
 
 #### Vertex X: FLOAT
 
@@ -494,7 +494,40 @@ Y component of the vertex position.
 
 #### Vertex Z: FLOAT
 
-Z component of the vertex position. 
+Z component of the vertex position.
+
+**BSP Node fields (there are BspNodeCount of all these fields potentially, but practically only ever one set):**
+
+#### VertexIndexCount: DWORD
+
+This is the number of vertices in the BSP node itself, and dictates the number of VertexIndex entries farther down.
+
+#### RenderMethod: DWORD
+
+This is the same RenderMethod field that is detailed in the 0x30 MaterialDef fragment. It is only ever zero in this fragment type in EverQuest, which is fully transparent. Changing the this value doesn't seem to do anything. Since the 0x36 MaterialDef fragment is far more common, and RenderMethod seems to be functional in that fragment type, please refer to that entry for an explanation of the field.
+
+#### RenderInfoFlags: DWORD
+
+This contains numerous different flags for controlling if various RenderInfo fields exist or not. Many of these RenderInfo fields seem similar to the fields in the 0x36 MaterialDef fragment, but they are not optional in that fragment type.
+
+0x01 - If set, the Pen value exists.\
+0x02 - If set, Brightness exists.\
+0x04 - If set, ScaledAmbient exists.\
+0x08 - If set, the SimpleSpriteReference exists.\
+0x10 - If set, there will be 3 UVInfoOrigin FLOATs, then 3 U-Axis FLOATs, then 3 V-Axis FLOATs. Otherwise, these 9 FLOATs will not exist.\
+0x20 - If set, there will be a UVCount DWORD, followed by a UVCount number of UV FLOAT pairs. Otherwise, these fields will not exist.\
+0x40 - This seems to be the same flag that causes the 0x36 MaterialDef fragment to become a two-sided material if it is set.
+
+#### RenderInfoPen: DWORD
+
+This is apparently a reference to an index in a color palette. There is no color data in the actual value. This is always "11" in this fragment in EverQuest.
+
+#### RenderInfoBrightness: FLOAT
+
+Brightness is sometimes referred to as "constant intensity" in some versions of the client. This is never present in this fragment in EverQuest, but I have seen it in Tanarus models.
+
+#### RenderInfoBrightness: FLOAT
+
 
 
 ## 0x09 — Camera Reference — REFERENCE
