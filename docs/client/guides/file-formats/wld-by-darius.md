@@ -451,7 +451,7 @@ Standard name reference. See "Basic fragments - NameReference" for details. In m
 
 0x01 - If set, CenterOffset exists.\
 0x02 - If set, BoundingRadius exists.\
-0x20 - This is a toggle for the normals for lighting to interact with face normals (if not set) or smooth shaded normals (if set), for the 3d meshes that this type of fragment was originally used for. Called "ENABLEGOURAUD2" in WLDCOM.EXE printout.\
+0x20 - This is a toggle for the normals for lighting to be set from face normals (if not set) or smooth shaded normals (if set), for the 3d meshes that this type of fragment was originally used for. Called "ENABLEGOURAUD2" in WLDCOM.EXE printout.\
 0x40 - If set, 4 Normal FLOATs will exist at the end of each BspNode.
 
 #### VertexCount: DWORD
@@ -620,11 +620,11 @@ Reference to a 0x08 3DspriteDef fragment.
 
 Always 0. Doesn't seem to be read by the client.
 
-## 0x10 — Skeleton Track Set — PLAIN
+## 0x10 — HierarchicalSpriteDef
 
 ### Notes
 
-This fragment describes a skeleton for an entire animated model, and is used for mob models. The overall skeleton is contained in a 0x10 Skeleton Track Set fragment and is structured as a hierarchical tree. For example, a pelvis piece might connect to chest, left thigh, and right thigh pieces. The chest piece might connect to left bicep, right bicep, and neck pieces. The left bicep piece might connect to a left forearm piece. The left forearm piece might connect to a left hand piece. The idea is to start at the base “stem” piece in the skeleton and recursively walk the tree to each successive piece.
+This fragment describes a skeleton for an entire animated model, and is used for mob models, and placed objects. Basically, only the parent-child relationship between the bones of the skeleton are stored in this fragment, and their positions and movements are stored in the 0x12 TrackDef fragments. Bones are called DAGs in the EverQuest client code with respect to .WLD files.
 
 For each piece there is a 0x13 Mob Skeleton Piece Track Reference fragment, which references one 0x12 Mob Skeleton Piece Track fragment. Each 0x12 fragment defines how that piece is rotated and/or shifted relative to its parent piece.
 
