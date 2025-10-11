@@ -452,7 +452,7 @@ Standard name reference. See "Basic fragments - NameReference" for details. In m
 0x01 - If set, CenterOffset exists.\
 0x02 - If set, BoundingRadius exists.\
 0x20 - This is a toggle for the normals for lighting to interact with face normals (if not set) or smooth shaded normals (if set), for the 3d meshes that this type of fragment was originally used for. Called "ENABLEGOURAUD2" in WLDCOM.EXE printout.\
-0x40 - If set, 4 NormalABCD FLOATs will exist at the end of each BspNode.
+0x40 - If set, 4 Normal FLOATs will exist at the end of each BspNode.
 
 #### VertexCount: DWORD
 
@@ -504,41 +504,121 @@ This is the number of vertices in the BSP node itself, and dictates the number o
 
 #### RenderMethod: DWORD
 
-This is the same RenderMethod field that is detailed in the 0x30 MaterialDef fragment. It is only ever zero in this fragment type in EverQuest, which is fully transparent. Changing the this value doesn't seem to do anything. Since the 0x36 MaterialDef fragment is far more common, and RenderMethod seems to be functional in that fragment type, please refer to that entry for an explanation of the field.
+This is the same RenderMethod field that is detailed in the 0x30 MaterialDef fragment. It is only ever zero in this fragment type in EverQuest, which is fully transparent. Changing the this value doesn't seem to do anything. Since the 0x30 MaterialDef fragment is far more common, and RenderMethod seems to be functional in that fragment type, please refer to that entry for an explanation of the field.
 
 #### RenderInfoFlags: DWORD
 
-This contains numerous different flags for controlling if various RenderInfo fields exist or not. Many of these RenderInfo fields seem similar to the fields in the 0x36 MaterialDef fragment, but they are not optional in that fragment type.
+This contains numerous different flags for controlling if various RenderInfo fields exist or not. Many of these RenderInfo fields seem similar to the fields in the 0x30 MaterialDef fragment, but they are not optional in the 0x30 MaterialDef fragment type.
 
 0x01 - If set, the Pen value exists.\
 0x02 - If set, Brightness exists.\
 0x04 - If set, ScaledAmbient exists.\
 0x08 - If set, the SimpleSpriteReference exists.\
-0x10 - If set, there will be 3 UVInfoOrigin FLOATs, then 3 U-Axis FLOATs, then 3 V-Axis FLOATs. Otherwise, these 9 FLOATs will not exist.\
+0x10 - If set, there will be 3 UVOrigin FLOATs, then 3 U-Axis FLOATs, then 3 V-Axis FLOATs. Otherwise, these 9 FLOATs will not exist.\
 0x20 - If set, there will be a UVCount DWORD, followed by a UVCount number of UV FLOAT pairs. Otherwise, these fields will not exist.\
 0x40 - This seems to be the same flag that causes the 0x36 MaterialDef fragment to become a two-sided material if it is set.
 
 #### RenderInfoPen: DWORD
 
-This is apparently a reference to an index in a color palette. There is no color data in the actual value. This is always "11" in this fragment in EverQuest.
+This field only exists if the 0x01 RenderInfoFlag is set. This is apparently a reference to an index in a color palette. There is no color data in the actual value. This is always "11" in this fragment in EverQuest.
 
 #### RenderInfoBrightness: FLOAT
 
-Brightness is sometimes referred to as "constant intensity" in some versions of the client. This is never present in this fragment in EverQuest, but I have seen it in Tanarus models.
+This field only exists if the 0x02 RenderInfoFlag is set. Brightness is sometimes referred to as "constant intensity" in some versions of the client. This is never present in this fragment type in EverQuest, but I have seen it in Tanarus models.
 
-#### RenderInfoBrightness: FLOAT
+#### RenderInfoScaledAmbient: FLOAT
 
+This field only exists if the 0x04 RenderInfoFlag is set. This is never present in this fragment type in EverQuest, but I have seen it in Tanarus models. ScaledAmbient also exsits on 0x30 MaterialDef fragments, but unsure of what it does there as well.
 
+#### RenderInfoSimpleSpriteReference: DWORD
 
-## 0x09 — Camera Reference — REFERENCE
+This field only exists if the 0x08 RenderInfoFlag is set. It can contain a reference to a 0x05 SimpleSprite reference fragment, which in turn references a 0x04 SimpleSpriteDef fragment. Seems to contain the texture references for Tanarus 3D mob models, but in EverQuest, this field never exists in this fragment type.
 
-Reference points to a 0x08 Camera fragment. 
+#### RenderInfoUVOrigin X: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Not sure of its purpose, but it seems to set up the UV coordinate system, along with the other RenderInfo UV fields. Seems to be the X coordinate of the UVOrigin. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoUVOrigin Y: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Seems to be the Y coordinate of the UVOrigin. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoUVOrigin Z: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Seems to be the Z coordinate of the UVOrigin. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoUAxis [0]: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Possibly part of the vector that the U-Axis of the UV coordinate system sits along, along with the other 2 RenderInfoUAxis fields. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoUAxis [1]: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Possibly part of the vector that the U-Axis of the UV coordinate system sits along, along with the other 2 RenderInfoUAxis fields. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoUAxis [2]: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Possibly part of the vector that the U-Axis of the UV coordinate system sits along, along with the other 2 RenderInfoUAxis fields. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoVAxis [0]: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Possibly part of the vector that the V-Axis of the UV coordinate system sits along, along with the other 2 RenderInfoVAxis fields. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoVAxis [1]: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Possibly part of the vector that the V-Axis of the UV coordinate system sits along, along with the other 2 RenderInfoVAxis fields. This field never exists in this fragment type in EverQuest.
+
+#### RenderInfoVAxis [2]: FLOAT
+
+This field only exists if the 0x10 RenderInfoFlag is set. Possibly part of the vector that the V-Axis of the UV coordinate system sits along, along with the other 2 RenderInfoVAxis fields. This field never exists in this fragment type in EverQuest.
+
+#### UVCount: DWORD
+
+This field only exists if the 0x20 RenderInfoFlag is set. It contains the number of UV entries that follows. 
+
+**UV coordinate entries (there are UVCount of these)**
+
+#### UV U: FLOAT
+
+Only exists if the 0x20 RenderInfoFlag is set, and UVCount is > 0. It is the U component of the texture UV.
+
+#### UV V: FLOAT
+
+Only exists if the 0x20 RenderInfoFlag is set, and UVCount is > 0. It is the V component of the texture UV.
+
+#### Normal A: FLOAT
+
+Exists, for each BSP node, if the 0x40 Flags value is set. This is the A component of the BSP node normal. Not sure what it does. In a regular BSP tree, it describes the plane that separates the fronttree and backtree, when traversing the tree. Values A, B, and C are a vector that is the plane normal, and D is the distance the plane from the origin. 
+
+#### Normal B: FLOAT
+
+Exists, for each BSP node, if the 0x40 Flags value is set. This is the B component of the BSP node normal.
+
+#### Normal C: FLOAT
+
+Exists, for each BSP node, if the 0x40 Flags value is set. This is the C component of the BSP node normal.
+
+#### Normal D: FLOAT
+
+Exists, for each BSP node, if the 0x40 Flags value is set. This is the D component of the BSP node normal.
+
+## 0x09 — 3DSprite
+
+### Notes
+
+Reference fragment for the 0x08 3DSpriteDef fragment. In EverQuest, this is referenced only by the PLAYER ActorDef. 
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Its purpose is unknown, but it always seems to contain 0.
+Standard name reference. See "Basic fragments - NameReference" for details. Always zero for this fragment type.
+
+#### 3DSpriteDefRef: DWORD
+
+Reference to a 0x08 3DspriteDef fragment.
+
+#### Flags: DWORD
+
+Always 0. Doesn't seem to be read by the client.
 
 ## 0x10 — Skeleton Track Set — PLAIN
 
@@ -1567,7 +1647,7 @@ Tells how many 0x30 MaterialDef fragment references this fragment contains.
 
 #### MaterialRefs: DWORDs
 
-There are MaterialCount fragment references. Each refers to a 0x30 MaterialDef fragment.
+There are MaterialCount fragment references. Each refers to a 0x30 MaterialDef fragment by fragment index.
 
 ## 0x32 — DmRGBTrackDef
 
@@ -1654,12 +1734,13 @@ Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unles
 
 #### SpawnType: DWORD
 
-Valid values for this seem to be 1-4:
+Valid values for this seem to be 0-4:
 
-Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the XYZ SpawnVelocity. Affected by XYZ Gravity.\
-Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity.\
-Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity.No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity.\
-Type 4: NONE - This seems to the do the same thing as Type 3.
+Type 0: BOX - Particles will spawn randomly in the volume defined by the 6 SpawnBox FLOATs. Particles affected by XYZ Gravity and SpawnVelocity.\
+Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the XYZ SpawnVelocity. Affected by XYZ Gravity. Affected by SpawnRadius.\
+Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity. Affected by SpawnRadius.\
+Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity. Affected by SpawnAngle.\
+Type 4: NONE - Particles will travel from the emitter in one direction based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity.
 
 #### PCloudFlags: DWORD
 
@@ -1682,11 +1763,11 @@ These are additional flags that control properties of the particles generated fo
 0x04000 - OBJECTRELATIVE: Particles move and rotate with the object they are being emitted from. XYZ coordinates are also relative to the object.\
 0x08000 - PARENTOBJRELATIVE: Particles move and rotate with the parent object of the object that the particles are being emitted from. XYZ coordinates are also relative to the parent of the object.\
 0x10000 - SPAWNSCALERELATIVE: Particles will scale with the model if it is resized in the DB or with an effect that resizes the model. Otherwise they will not scale.\ 
-0x20000 - HIDEWITHSPAWNOBJECT: This flag is set on every particle cloud I have seen, removing the flag does not seem to do anything.\
+0x20000 - HIDEWITHSPAWNOBJECT: This flag is set on every particle cloud I have seen, removing the flag does not seem to do anything.
 
 #### Size: DWORD
 
-The number of particles that will be generated by the emitter at once. 
+The max number of particles that can be displayed by the emitter at once. 
 
 #### GravityMultiplier: FLOAT
 
@@ -1706,15 +1787,15 @@ How fast particles will "fall" in the Z direction.
 
 #### Duration: DWORD
 
-placeholder.
+Time, in milliseconds, that the particle cloud will generate new particles. It will stop after this time. Probably only useful is spell effects.
 
 #### SpawnRadius: FLOAT
 
-placeholder.
+This seems to be the distance from the emitter's origin that the particles will spawn. Only affects particles with SPHERE or PLANE SpawnType type.
 
 #### SpawnAngle: FLOAT
 
-placeholder.
+This seems to be the maximum angle that particles will travel randomly in a cone from the emitter. A value of 90.0 seems to be the maximum and greater values won't affect the appearance of the particles. Requires that SpawnVelocityMultiplier and at least one SpawnVelocity value is > 0.0. Only affects particles with STREAM SpawnType type.
 
 #### Lifespan: DWORD
 
@@ -1738,7 +1819,7 @@ How fast the particle moves in the Z axis.
 
 #### SpawnRate: DWORD
 
-placeholder.
+The time, in milliseconds, between the spawns of particles from the emitter. If an emitter has a Size of 5, and a SpawnRate of 100, it will spawn a particle every 100 milliseconds until it reaches 5 particles. Then it will stop emitting particles until one of the particles reaches its Lifespan.
 
 #### SpawnScale: FLOAT
 
@@ -1750,51 +1831,51 @@ The color of the particle. If the particle is not greyscale, adjusting this will
 
 #### SpawnBoxMin X: FLOAT
 
-placeholder.
+Exists if the 0x01 Flags value is set. This and the other 5 SpawnBox values create a volume that particles with SpawnType "BOX" will randomly spawn in. This is the X component of the bounding box minimum.
 
 #### SpawnBoxMin Y: FLOAT
 
-placeholder.
+Exists if the 0x01 Flags value is set. This and the other 5 SpawnBox values create a volume that particles with SpawnType "BOX" will randomly spawn in. This is the Y component of the bounding box minimum.
 
 #### SpawnBoxMin Z: FLOAT
 
-placeholder.
+Exists if the 0x01 Flags value is set. This and the other 5 SpawnBox values create a volume that particles with SpawnType "BOX" will randomly spawn in. This is the Z component of the bounding box minimum.
 
 #### SpawnBoxMax X: FLOAT
 
-placeholder.
+Exists if the 0x01 Flags value is set. This and the other 5 SpawnBox values create a volume that particles with SpawnType "BOX" will randomly spawn in. This is the X component of the bounding box maximum.
 
 #### SpawnBoxMax Y: FLOAT
 
-placeholder.
+Exists if the 0x01 Flags value is set. This and the other 5 SpawnBox values create a volume that particles with SpawnType "BOX" will randomly spawn in. This is the Y component of the bounding box maximum.
 
 #### SpawnBoxMax Z: FLOAT
 
-placeholder.
+Exists if the 0x01 Flags value is set. This and the other 5 SpawnBox values create a volume that particles with SpawnType "BOX" will randomly spawn in. This is the Z component of the bounding box maximum.
 
 #### BoxMin X: FLOAT
 
-placeholder.
+Exists if the 0x02 Flags value is set.
 
 #### BoxMin Y: FLOAT
 
-placeholder.
+Exists if the 0x02 Flags value is set.
 
 #### BoxMin Z: FLOAT
 
-placeholder.
+Exists if the 0x02 Flags value is set.
 
 #### BoxMax X: FLOAT
 
-placeholder.
+Exists if the 0x02 Flags value is set.
 
 #### BoxMax Y: FLOAT
 
-placeholder.
+Exists if the 0x02 Flags value is set.
 
 #### BoxMax Z: FLOAT
 
-placeholder.
+Exists if the 0x02 Flags value is set.
 
 #### BlitSpriteRef: DWORD
 
@@ -1959,7 +2040,7 @@ Tells how many MeshOps there are. MeshOps are a method for LOD. They are used if
 
 This allows vertex coordinates to be stored as integral values instead of floating-point values, without losing precision based on mesh size. Vertex coordinate values are divided by 2^FloatingPointScale for in-game values.
 
-Vertex entries (there are VertexCount of these):
+**Vertex entries (there are VertexCount of these)**
 
 #### Vertex X: SIGNED WORD (signed 16-bit value)
 
@@ -1973,7 +2054,7 @@ Y component of the vertex position.
 
 Z component of the vertex position. 
 
-UV coordinate entries (there are UVCount of these):
+**UV coordinate entries (there are UVCount of these)**
 
 #### UV U: SIGNED WORD (old-format file) or FLOAT (new-format file)
 
@@ -1983,7 +2064,7 @@ In old-format .WLD files, this contains a signed 16-bit UV value that are divide
 
 In old-format .WLD files, this contains a signed 16-bit UV value that are divided by 256 to get float values. In new-format .WLD files this is a float32. It is the V component of the texture UV.
 
-Vertex normal entries (there are NormalsCount of these)
+**Vertex normal entries (there are NormalsCount of these)**
 
 #### Normal X: SIGNED BYTE
 
@@ -1997,13 +2078,13 @@ Contains a signed byte representing the Y component of the vertex normal, scaled
 
 Contains a signed byte representing the Z component of the vertex normal, scaled such that –127 represents –1 and 127 represents 1.
 
-Vertex color entries (there are ColorCount of these)
+**Vertex color entries (there are ColorCount of these)**
 
 #### Color: DWORD
 
 This contains an BGRA color value for each vertex in the mesh. It specifies the additional color to be applied to the vertex, as if that vertex has been illuminated by a nearby light source. The A value is a alpha value that is combined with dymanic light sources. There is a maximum value to the light, so a high value will start bright, and not change much with a dynamic light source. Each byte of the DWORD is one unsigned color value (0-255).
 
-Polygon entries (there are FaceCount of these)
+**Polygon entries (there are FaceCount of these)**
 
 #### FaceFlags: WORD
 
@@ -2019,8 +2100,9 @@ Index of the face's second vertex.
 
 #### Vertex 3: WORD
 
-Index of the face's third vertex.\
- VertexGroup entries (there are VertexGroupCount of these)
+Index of the face's third vertex.
+
+**VertexGroup entries (there are VertexGroupCount of these)**
 
 #### VertexCount: WORD
 
@@ -2030,7 +2112,7 @@ Number of vertices in the vertex group. These indicies of the vertices in a grou
 
 This is the index of the bone (known as dags in some EverQuest documention) in the 0x10 HierarchicalSpriteDef that references this DmSpriteDef2 mesh fragment.
 
-FaceMaterialGroup entries (there are FaceMaterialGroupCount of these)
+**FaceMaterialGroup entries (there are FaceMaterialGroupCount of these)**
 
 #### FaceCount: WORD
 
@@ -2050,7 +2132,7 @@ Number of vertices that use the same material. These indicies of the vertices in
 
 The index of the material that the faces use, according to the 0x31 MaterialPalette fragment contained in this DmSpriteDef2's MaterialPaletteRef. Again, starts with 0.
 
-MeshOp entries (there are MeshOpCount of these)
+**MeshOp entries (there are MeshOpCount of these)**
 
 #### Index1: WORD (If MeshOpType is 1 to 3)
 
@@ -2116,8 +2198,8 @@ Typically contains zero. Its purpose is unknown.
 
 This works in exactly the same way as the Scale field in the 0x36 DmSpriteDef2 fragment. By dividing the vertex positional values by 2^FPScale, you get the actual vertex positions.
 
-Frame entries (there are FrameCount of these):\
-Vertex entries (there are VertexCount of these):
+**Frame entries (there are FrameCount of these)**\
+**Vertex entries (there are VertexCount of these)**
 
 #### Vertex X: SIGNED WORD (signed 16-bit value)
 
