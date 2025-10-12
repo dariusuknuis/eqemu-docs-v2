@@ -624,75 +624,86 @@ Always 0. Doesn't seem to be read by the client.
 
 ### Notes
 
-This fragment describes a skeleton for an entire animated model, and is used for mob models, and placed objects. Basically, only the parent-child relationship between the bones of the skeleton are stored in this fragment, and their positions and movements are stored in the 0x12 TrackDef fragments. Bones are called DAGs in the EverQuest client code with respect to .WLD files.
+This fragment describes a skeleton for an entire animated model, and is used for mob models and placed objects. Basically, only the parent-child relationship between the bones of the skeleton are stored in this fragment. Bones are called DAGs in the EverQuest client code with respect to .WLD files. This is probably in reference to a "Directed Acyclic Graph", which is a method of representing the relationships between bones in skeletal animation. 
 
-For each piece there is a 0x13 Mob Skeleton Piece Track Reference fragment, which references one 0x12 Mob Skeleton Piece Track fragment. Each 0x12 fragment defines how that piece is rotated and/or shifted relative to its parent piece.
+There typically is a 0x13 Track fragment for each DAG in this fragment. Those 0x13 Track fragments will in turn reference a 0x12 TrackDef fragment that will describe the position of the DAG, and its movement if animated. 
+
+Objects with particle effects seem to always have a HierarchicalSpriteDef and the 0x34 ParticleCloudDef fragments would be attached directly referenced by a DAG. Some objects are assembled by using a HierarchicalSpriteDef, also, and the DAGs will reference a 0x2D DmSprite fragment, which in turn is a reference for either a 0x2C DmSpriteDef fragment (very uncommon) or a 0x36 DmSpriteDef2 fragment. It can also have a default animation in that case.
+
+Mobs always have a HierarchicalSpriteDef. 0x14 ActorDef fragments will always reference the 0x11 HierarchicalSprite fragment if a model (like a placed object or mob) has a 0x14 HierarchicalSpriteDef fragment associated with it.
 
 ### Fields
 
-#### Flags : DWORD
+#### NameReference: DWORD
 
-Bit 0 ........ If 1, Params1[0..2] fields exist.\
-Bit 1 ........ If 1, Params2 exists.\
-Bit 9 ........ If 1, Size2, Fragment3, and Data3 fields exist.
+Standard name reference. See "Basic fragments - NameReference" for details. Names seem to always be appended with "_HSDEF".
 
-#### Size1 : DWORD
+#### Flags: DWORD
 
-Number of track reference entries (see below)
+0x00001 - If set, 3 CenterOffset FLOATs exist.\
+0x00002 - If set, the BoundingRadius FLOAT exists.\
+0x00200 - If set, the NumAttachedSkins DWORD exists, and then NumAttachedSkins pairs of MeshSpriteRef and LinkSkinUpdatesToDagIndex DWORDs.\
+0x20000 - If set, a collision volume may be used that is attached to a DAG or to a mesh that is attached to a DAG.
 
-#### Fragment : DWORD
+#### NumDags: DWORD
 
-Optionally points to a 0x18 Polygon Animation Reference? fragment.
+Number of DAGs (or bones) in the HierarchicalSpriteDef, and hence the number of DAG entries further below.
 
-#### Params1[0] : DWORD
+#### CollisionVolumeRef: DWORD
 
-Unknown purpose. Only exists if bit 0 of Flags is 1.
+The can be a reference to a 0x18 Polyhedron fragment, which in turn references a 0x17 PolyhedronDef fragment. Also possibly can reference a 0x1A SphereList fragment, which references a 0x19 SphereListDef fragment. These add collision to the model if other methods are not being used. 
 
-#### Params1[1] : DWORD
+#### CenterOffset X: FLOAT
 
-Unknown purpose. Only exists if bit 0 of Flags is 1.
+Only exists if the 0x01 Flags value is set.
 
-#### Params1[2] : DWORD
+#### CenterOffset Y: FLOAT
 
-Unknown purpose. Only exists if bit 0 of Flags is 1.
+Only exists if the 0x01 Flags value is set.
 
-#### Params2 : FLOAT
+#### CenterOffset Z: FLOAT
 
-Unknown purpose.
+Only exists if the 0x01 Flags value is set.
 
-Entries (there are Size1 of them):
+#### BoundingRadius: FLOAT
 
-#### Entry1NameReference : DWORD
+Only exsists if the 0x02 Flags value is set. 
+
+**DAG Entries (there are NumDags of them)**
+
+#### DagNameReference: DWORD
 
 This seems to refer to the name of either this or another 0x10 fragment. It seems that at least one name reference points to the name of this fragment.
 
-#### Entry1Flags : DWORD
+#### DagFlags: DWORD
 
 Usually zero.
 
-#### Entry1Fragment1 : DWORD
+#### TrackRef: DWORD
 
 Reference to a 0x13 Mob Skeleton Piece Track Reference fragment.
 
 Important: animated models generally only reference a basic set of fragments necessary to render the model but not animate it. There will generally be other sets of 0x13 fragments where each set corresponds to a different animation of the model. Software reading .WLD files must use the name of the first 0x13 fragment referenced by the 0x10 Skeleton Track Set to discover any other animation sets. The first fragment of any alternate animation set will have the same name as the first 0x13 fragment, with an additional prefix. All other 0x13 fragments in that same set will likewise correspond to their counterparts in the basic animation set. Different animation sets will have different prefixes (e.g. “C01” for one combat animation, “C02” for another combat animation, etc.). All alternate animation sets for a particular model generally immediately follow the 0x10 Skeleton Track Set fragment (with the 0x11 Skeleton Track Set Reference immediately following those). I don’t know if this is a necessary arrangement.
 
-#### Entry1Fragment2 : DWORD
+#### DagSpriteRef: DWORD
 
 Sometimes refers to a 0x2D Mesh Reference fragment.
 
-#### Entry1Size : DWORD
+#### NumSubDags: DWORD
 
 Tells how many Entry1Data entries there are.
 
-#### Entry1Data : DWORDs
+#### SubDag: DWORDs
 
 Each of these contains the index of the next piece in the skeleton tree. A Skeleton Track Set is a hierarchical tree of pieces in the skeleton. It generally starts with a central “stem” and branches out to a skeleton’s extremities. For instance, the first entry might be the stem; that entry might point to the pelvis entry; the pelvis entry might point to the left thigh, right thigh, and chest entries; and those entries would each point to other parts of the skeleton. The exact topography of the tree depends upon the overall structure of the skeleton. The proper way to use a Skeleton Track Set fragment is to start with the first entry and recursively walk the tree by following each entry’s Entry1Data field to other connected pieces.
 
 It’s also worth noting that, although an entry might reference a 0x13 Mob Skeleton Piece Track Reference fragment in its EntityFragment1 field, that does not mean it will be valid for rendering (see the 0x12 Mob Skeleton Piece Track fragment for more information). Many model skeletons apparently contain extraneous pieces that have an unknown purpose, though I suspect that they are for determining attachment points for weapons and shields and are otherwise not meant to be rendered. These pieces are generally not referenced by the 0x36 Mesh fragments that the skeleton indirectly references (via 0x2D Mesh Reference fragments).
 
-#### Size2 : DWORD
+#### NumAttachedSkins: DWORD
 
-Tells how many Fragment3 and Data3 entries there are. This field only exists if the proper bit in the Flags field is set.
+This field, and the AttachedSkin entries that follow, only exist if the 0x200 Flags value is set. This tells how many meshes are attached to the HierarchicalSpriteDef. These meshes can then have vertex groups (also known as "skin assignment groups"), and can reference the DAGs to drive animation of the meshes.
+
+**AttachedSkin Entries (there are NumAttachedSkins of them)**
 
 #### Fragment3 : DWORDs
 
@@ -702,7 +713,7 @@ There are Size2 of these. This field only exists if the proper bit in the Flags 
 
 There are Size2 of these. It’s unknown what they typically contain. This field only exists if the proper bit in the Flags field is set.
 
-## 0x11 — Skeleton Track Set Reference — REFERENCE
+## 0x11 — HierarchicalSprite
 
 Reference points to a 0x10 Skeleton Track Set fragment. 
 
@@ -781,7 +792,7 @@ The denominator for the piece X, Y, and Z shift values. Like the rotation denomi
 
 There are (4 x Size) DWORDs here. Their purpose is unknown. This field exists only if the proper bit in Flags is set. It’s possible that this is a bogus field and really just represents the above fields in some sort of 32-bit form.
 
-## 0x13 — Mob Skeleton Piece Track Reference — REFERENCE
+## 0x13 — Track
 
 Reference points to a 0x12 Mob Skeleton Piece Track fragment. 
 
