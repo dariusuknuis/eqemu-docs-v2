@@ -16,9 +16,9 @@ SubEffect0 - This effect will appear from level 1, and after.\
 SubEffect1 - This effect will appear from level 24, and after.\
 SubEffect2 - This effect will appear from level 39, and after.
 
-**Spell record entries (there are 256 of these)**
+## Spell record entries (there are 256 of these):
 
-### Header: 0x8 BYTEs
+#### Header: 0x8 BYTEs
 
 This contains either 0 or 1, its purpose is currently unknown.
 
