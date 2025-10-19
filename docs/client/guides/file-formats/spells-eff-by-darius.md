@@ -24,25 +24,21 @@ This contains either 0 or 1, its purpose is currently unknown.
 
 **Spell effect entries (there are 3 of these)**
 
-#### BlitSprite [SubEffect0]: 0x20 BYTEs
+***BlitSprite entries (there are 3 of these, one for each SubEffect)***
+
+#### BlitSprite: 0x20 BYTEs
 
 This is an uncoded string that always refers to 0x26 BlitSpriteDef WLD fragments with the name format "GEN%c%d0_SPRITE"; where %c is a single alphabetic character, and %d is an integer. So, "GENA00_SPRITE" is a valid name, but "GENZ_SPRITE" crashes the game, even if the BlitSprite exists. Most of the BlitSprites are contained in the "equip.s3d" files, like gequip.s3d, gequip5.s3d, etc...
 
-This will be the blit image of the spell effect that appears from level 1, on.
-
-#### BlitSprite [SubEffect1]: 0x20 BYTEs
-
-This will be the blit image of the spell effect that appears from level 24, on. Otherwise it works the same as the SubEffect0 BlitSprite.
-
-#### BlitSprite [SubEffect2]: 0x20 BYTEs
-
-This will be the blit image of the spell effect that appears from level 39, on. Otherwise it works the same as the SubEffect0 BlitSprite.
+There are 3 of these consecutively. One for each SubEffect.
 
 #### Role: 0x20 BYTEs
 
 This is an uncoded string that describes the type of effect entry. It can only contain "Source" or "Target". The effect that travels between the caster and target does not have a Role string.
 
-#### AttachmentType [SubEffect0]: signed DWORD
+***AttachmentType entries (there are 3 of these, one for each SubEffect)***
+
+#### AttachmentType: signed DWORD
 
 This controls what bone (known as DAGs in the WLD-based EverQuest code), in the skeleton of the mob, that the effect will be emitted from. The values work as follows:
 
@@ -53,75 +49,19 @@ This controls what bone (known as DAGs in the WLD-based EverQuest code), in the 
 4 - Emitter is the %sBO_R_DAG or %sBOFOOTR_DAG, where %s is the model name. The effect will emit from the right foot of the mob.\
 5 - Emitter is the %sBO_L_DAG or %sBOFOOTL_DAG, where %s is the model name. The effect will emit from the left foot of the mob.
 
-Any other value defaults to 0 (%sCH_DAG or %sCHEST_POINT_DAG). This is the blit image AttachmentType of the spell effect that appears from level 1, on.
+Any other value defaults to 0 (%sCH_DAG or %sCHEST_POINT_DAG). There are 3 of these consecutively. One for each SubEffect.
 
-#### AttachmentType [SubEffect1]: signed DWORD
+***EffectType entries (there are 3 of these, one for each SubEffect)***
 
-This is the blit image AttachmentType of the spell effect that appears from level 24, on. Otherwise it works the same as the SubEffect0 AttachmentType.
+#### EffectType: signed DWORD
 
-#### AttachmentType [SubEffect2]: signed DWORD
+placeholder. There are 3 of these consecutively. One for each SubEffect.
 
-This is the blit image AttachmentType of the spell effect that appears from level 39, on. Otherwise it works the same as the SubEffect0 AttachmentType.
+***AfterEffectSprite entries (there are 12 of these, one for each AfterEffect)***
 
-#### EffectType [SubEffect0]: signed DWORD
+#### AfterEffectSprite: 0x20 BYTEs
 
-placeholder.
-
-#### EffectType [SubEffect1]: signed DWORD
-
-placeholder.
-
-#### EffectType [SubEffect2]: signed DWORD
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect0]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect1]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect2]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect3]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect4]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect5]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect6]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect7]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect8]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect9]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect10]: 0x20 BYTEs
-
-placeholder.
-
-#### AfterEffectSprite [AfterEffect11]: 0x20 BYTEs
-
-placeholder.
+placeholder. There are 12 of these consecutively. One for each AfterEffect.
 
 #### EffectMode: signed DWORD
 
@@ -131,53 +71,126 @@ Placeholder.
 
 Placeholder.
 
-#### ColorBGRA [SubEffect0]: 0x4 BYTEs
+***ColorBGRA entries (there are 3 sets of these, one for each SubEffect)***
+
+#### ColorBGRA [B]: BYTE
 
 Placeholder.
 
-#### ColorBGRA [SubEffect1]: 0x4 BYTEs
+#### ColorBGRA [G]: BYTE
 
 Placeholder.
 
-#### ColorBGRA [SubEffect2]: 0x4 BYTEs
+#### ColorBGRA [R]: BYTE
 
 Placeholder.
 
-#### Gravity [SubEffect0]: FLOAT
+#### ColorBGRA [A]: BYTE
 
 Placeholder.
 
-#### Gravity [SubEffect1]: FLOAT
+***Gravity entries (there are 3 of these, one for each SubEffect)***
+
+#### Gravity: FLOAT
 
 Placeholder.
 
-#### Gravity [SubEffect2]: FLOAT
+***SpawnNormal entries (there are 3 sets of these, one for each SubEffect)***
+
+#### SpawnNormal [X]: FLOAT
 
 Placeholder.
 
-#### SpawnNormal [SubEffect0]: 3 FLOATs
+#### SpawnNormal [Y]: FLOAT
 
 Placeholder.
 
-#### SpawnNormal [SubEffect1]: 3 FLOATs
+#### SpawnNormal [Z]: FLOAT
 
 Placeholder.
 
-#### SpawnNormal [SubEffect2]: 3 FLOATs
+***SpawnRadius entries (there are 3 of these, one for each SubEffect)***
+
+#### SpawnRadius: FLOAT
 
 Placeholder.
 
+***SpawnAngle entries (there are 3 of these, one for each SubEffect)***
 
+#### SpawnAngle: FLOAT
 
+Placeholder.
 
+***Lifespan entries (there are 3 of these, one for each SubEffect)***
 
+#### Lifespan: unsigned DWORD
 
+Placeholder.
 
+***SpawnVelocity entries (there are 3 of these, one for each SubEffect)***
 
+#### SpawnVelocity: FLOAT
 
+Placeholder.
 
+***SpawnRate entries (there are 3 of these, one for each SubEffect)***
 
+#### SpawnRate: unsigned DWORD
 
+Placeholder.
 
+***SpawnScale entries (there are 3 of these, one for each SubEffect)***
 
+#### SpawnScale: FLOAT
 
+Placeholder.
+
+***ColorBGR entries (there are 12 sets of these, one for each AfterEffect)***
+
+#### ColorBGR [B]: BYTE
+
+Placeholder.
+
+#### ColorBGR [G]: BYTE
+
+Placeholder.
+
+#### ColorBGR [R]: BYTE
+
+Placeholder.
+
+***SpriteID entries (there are 12 of these, one for each AfterEffect)***
+
+#### SpriteID: signed DWORD
+
+Placeholder.
+
+***AngleRangeA entries (there are 12 of these, one for each AfterEffect)***
+
+#### AngleRangeA: signed WORD
+
+Placeholder.
+
+***AngleRangeB entries (there are 12 of these, one for each AfterEffect)***
+
+#### AngleRangeB: signed WORD
+
+Placeholder.
+
+***AfterEffectRadius entries (there are 12 of these, one for each AfterEffect)***
+
+#### AfterEffectRadius: FLOAT
+
+Placeholder.
+
+***AfterEffectType entries (there are 12 of these, one for each AfterEffect)***
+
+#### AfterEffectType: signed WORD
+
+Placeholder.
+
+***AfterEffectScale entries (there are 12 of these, one for each AfterEffect)***
+
+#### AfterEffectScale: FLOAT
+
+Placeholder.
