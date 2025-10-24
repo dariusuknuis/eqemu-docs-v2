@@ -40,7 +40,7 @@ This is an uncoded string that describes the type of effect entry. It can only c
 
 #### AttachmentType: signed DWORD
 
-This controls what bone (known as DAGs in the WLD-based EverQuest code), in the skeleton of the mob, that the effect will be emitted from. The values work as follows:
+This controls what bone (known as DAGs in the WLD-based EverQuest code), in the skeleton of the mob, that the effect will be emitted from. Only certain EffectTypes use this value, as some are locked to certain DAGs or locations. The values work as follows:
 
 0 - Emitter is the %sCH_DAG or %sCHEST_POINT_DAG, where %s is the model name. The effect will emit from the chest of the mob.\
 1 - Emitter is the %sHEAD_POINT_DAG, where %s is the model name. The effect will emit from the head of the mob.\
@@ -49,13 +49,135 @@ This controls what bone (known as DAGs in the WLD-based EverQuest code), in the 
 4 - Emitter is the %sBO_R_DAG or %sBOFOOTR_DAG, where %s is the model name. The effect will emit from the right foot of the mob.\
 5 - Emitter is the %sBO_L_DAG or %sBOFOOTL_DAG, where %s is the model name. The effect will emit from the left foot of the mob.
 
-Any other value defaults to 0 (%sCH_DAG or %sCHEST_POINT_DAG). There are 3 of these consecutively. One for each SubEffect.
+Any other value defaults to 0 (%sCH_DAG or %sCHEST_POINT_DAG). There are 3 of these consecutively. One for each SubEffect. 
 
 ***EffectType entries (there are 3 of these, one for each SubEffect)***
 
 #### EffectType: signed DWORD
 
-placeholder. There are 3 of these consecutively. One for each SubEffect.
+This controls a set of preset values for the SubEffect. These are all properties of a 0x34 ParticleCloudDef WLD fragment. If the SubEffect has a value > zero for the property, then it uses that value in the spell effect, otherwise it uses the values in the EffectType presets. Some of the properties are not able to be set in a SubEffect, so these values are always used. For a full description of the properties, please see the "WLD by Darius" doc. Here are the types:
+
+Type 0\
+	ParticleType: 3\
+    PCloudFlags: 0x001, 0x100, 0x200, 0x400\
+    Size: 500\
+    Gravity: 0.0\
+    SpawnNormal: 0.0x, 0.0y, -1.0z\
+    BoxMin:\
+    BoxMax:\
+    SpawnType: 3\
+	Duration: 1600\
+    SpawnVelocity: 0.0x, 0.0y, -1.0z\
+	SpawnRadius: 0.0\
+	SpawnAngle: 20.0\
+	Lifespan: 1000
+	SpawnVelocityMulitplier 3.0
+	SpawnRate: 20
+	SpawnScale: 0.05
+	Color: 
+    BlitSpriteRef: "I_SNOWFLAKESPRITE"
+
+Type 1\
+	ParticleType: 3\
+    PCloudFlags: 0x001, 0x100, 0x200, 0x400\
+    Size: 2000\
+    Gravity: 0.0\
+    SpawnNormal: -1.0x, 0.0y, 0.0z\
+    BoxMin:\
+    BoxMax:\
+    SpawnType: 3\
+	Duration: 5000\
+    SpawnVelocity: -1.0x, 0.0y, 0.0z\
+	SpawnRadius: 0.0\
+	SpawnAngle: 20.0\
+	Lifespan: 2000\
+	SpawnVelocityMulitplier 20.0\
+	SpawnRate: 1\
+	SpawnScale: 0.2\
+	Color: \
+    BlitSpriteRef: "I_SNOWFLAKESPRITE"
+
+Type 2\
+	ParticleType: 3\
+    PCloudFlags: 0x001, 0x100, 0x200, 0x400\
+    Size: 1000\
+    Gravity: 0.0\
+    SpawnNormal: 0.0x, 0.0y, -1.0z\
+    BoxMin:\
+    BoxMax:\
+    SpawnType: 1\
+	Duration: 1600\
+    SpawnVelocity: 0.0x, 0.0y, 0.0z\
+	SpawnRadius: 5.0\
+	SpawnAngle: 0.0\
+	Lifespan: 1000\
+	SpawnVelocityMulitplier 3.0\
+	SpawnRate: 2\
+	SpawnScale: 0.05\
+	Color:\
+    BlitSpriteRef: "I_SNOWFLAKESPRITE"
+
+Type 3\
+	ParticleType: 3\
+    PCloudFlags: 0x001, 0x100, 0x200, 0x400\
+    Size: 1000\
+    Gravity: 0.0\
+    SpawnNormal: 0.0x, 0.0y, -1.0z\
+    BoxMin:\
+    BoxMax:\
+    SpawnType: 4\
+	Duration: 5000\
+    SpawnVelocity: 0.0x, 0.0y, -1.0z\
+	SpawnRadius: 20.0\
+	SpawnAngle: 0.0\
+	Lifespan: 1000\
+	SpawnVelocityMulitplier 7.0\
+	SpawnRate: 2\
+	SpawnScale: 0.2\
+	Color: \
+    BlitSpriteRef: "I_SNOWFLAKESPRITE"
+
+Type 4\
+	ParticleType: 3\
+    PCloudFlags: 0x001, 0x100, 0x200, 0x400\
+    Size: 1000\
+    Gravity: 5.0\
+    SpawnNormal: 0.0x, 0.0y, 1.0z\
+    BoxMin:\
+    BoxMax:\
+    SpawnType: 4\
+	Duration: 5000\
+    SpawnVelocity: 0.0x, 0.0y, 1.0z\
+	SpawnRadius: 4.0\
+	SpawnAngle: 0.0\
+	Lifespan: 1000\
+	SpawnVelocityMulitplier 7.0\
+	SpawnRate: 2\
+	SpawnScale: 0.2\
+	Color: \
+    BlitSpriteRef: "I_SNOWFLAKESPRITE"
+
+Type 5\
+	ParticleType: 3\
+    PCloudFlags: 0x001, 0x100, 0x200, 0x400\
+    Size: 1000\
+    Gravity: 5.0\
+    SpawnNormal: 0.0x, 0.0y, 1.0z\
+    BoxMin:\
+    BoxMax:\
+    SpawnType: 2\
+	Duration: 5000\
+    SpawnVelocity: 0.0x, 0.0y, 1.0z\
+	SpawnRadius: 5.0\
+	SpawnAngle: 0.0\
+	Lifespan: 1000\
+	SpawnVelocityMulitplier 7.0\
+	SpawnRate: 2\
+	SpawnScale: 0.2\
+	Color: \
+    BlitSpriteRef: "I_SNOWFLAKESPRITE"
+    
+There are 3 of these consecutively. One for each SubEffect.
 
 ***AfterEffectSprite entries (there are 12 of these, one for each AfterEffect)***
 

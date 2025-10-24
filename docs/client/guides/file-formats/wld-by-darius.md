@@ -1780,19 +1780,19 @@ These are additional flags that control properties of the particles generated fo
 
 The max number of particles that can be displayed by the emitter at once. 
 
-#### GravityMultiplier: FLOAT
+#### Gravity: FLOAT
 
-Gravity is a movement property similar to SpawnVelocity. Just setting the GravityMultiplier alone will not make particles move. You must also set one of the XYZ Gravity values as well. If PCloudFlags 0x4000 or 0x8000 are set, then the gravity coordinate system is local to the object or object parent. Having negative values will cause particles to "fall" in the opposite direction.
+Gravity is a movement property similar to SpawnVelocity. Just setting the Gravity alone will not make particles move. You must also set one of the XYZ SpawnNormal values as well. If PCloudFlags 0x4000 or 0x8000 are set, then the gravity coordinate system is local to the object or object parent. Having negative values will cause particles to "fall" in the opposite direction.
 
-#### Gravity X: FLOAT
+#### SpawnNormal X: FLOAT
 
 How fast particles will "fall" in the X direction.
 
-#### Gravity Y: FLOAT
+#### SpawnNormal Y: FLOAT
 
 How fast particles will "fall" in the Y direction.
 
-#### Gravity Z: FLOAT
+#### SpawnNormal Z: FLOAT
 
 How fast particles will "fall" in the Z direction.
 
