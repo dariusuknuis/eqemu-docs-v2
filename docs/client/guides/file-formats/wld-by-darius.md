@@ -1747,11 +1747,11 @@ Type 4: Axis aligned blit that sits on the XY plane. These are hard to see unles
 
 Valid values for this seem to be 0-4:
 
-Type 0: BOX - Particles will spawn randomly in the volume defined by the 6 SpawnBox FLOATs. Particles affected by XYZ Gravity and SpawnVelocity.\
-Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the XYZ SpawnVelocity. Affected by XYZ Gravity. Affected by SpawnRadius.\
-Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity. Affected by SpawnRadius.\
-Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity. Affected by SpawnAngle.\
-Type 4: NONE - Particles will travel from the emitter in one direction based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by XYZ Gravity.
+Type 0: BOX - Particles will spawn randomly in the volume defined by the 6 SpawnBox FLOATs. Particles affected by Gravity, SpawnNormal, and SpawnVelocity.\
+Type 1: SPHERE - Particles will travel from the emitter randomly in any direction. Speed of particles is affected by SpawnVelocityMultiplier, but not the XYZ SpawnVelocity. Affected by Gravity and SpawnNormal. Affected by SpawnRadius.\
+Type 2: PLANE - Particles will travel from the emitter in a random direction along one plane based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by Gravity and SpawnNormal. Affected by SpawnRadius.\
+Type 3: STREAM - Particles will travel from the emitter in one direction based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by Gravity and SpawnNormal. Affected by SpawnAngle.\
+Type 4: DISK - Particles will spawn randomly on a circular disk of SpawnRadius size and travel from the disk in one direction based on the SpawnVelocity. No movement with SpawnVelocityMultiplier alone. Affected by Gravity and SpawnNormal.
 
 #### PCloudFlags: DWORD
 
@@ -1782,7 +1782,7 @@ The max number of particles that can be displayed by the emitter at once.
 
 #### Gravity: FLOAT
 
-Gravity is a movement property similar to SpawnVelocity. Just setting the Gravity alone will not make particles move. You must also set one of the XYZ SpawnNormal values as well. If PCloudFlags 0x4000 or 0x8000 are set, then the gravity coordinate system is local to the object or object parent. Having negative values will cause particles to "fall" in the opposite direction.
+Gravity is a movement property similar to SpawnVelocity, but causes movement with acceleration. Just setting the Gravity alone will not make particles move. You must also set one of the XYZ SpawnNormal values as well. If PCloudFlags 0x4000 or 0x8000 are set, then the gravity coordinate system is local to the object or object parent. Having negative values will cause particles to "fall" in the opposite direction.
 
 #### SpawnNormal X: FLOAT
 
