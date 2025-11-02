@@ -292,7 +292,7 @@ Placeholder.
 
 ***SpriteID entries (there are 12 of these, one for each AfterEffect)***
 
-#### : signed DWORD
+#### AfterEffectSpin: FLOAT
 
 Placeholder.
 
