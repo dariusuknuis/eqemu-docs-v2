@@ -34,7 +34,7 @@ There are 3 of these consecutively, one for each SubEffect.
 
 #### Role: 0x20 BYTEs
 
-This is an uncoded string that describes the type of effect entry. It can only contain "Source" or "Target". The effect that travels between the caster and target does not have a Role string.
+This is an uncoded string that describes the type of effect entry. It can only contain "Source" or "Target". The effect that travels between the caster and target does not have a Role string. Source is the caster, and Target is the spell target.
 
 ***AttachmentType entries (there are 3 of these, one for each SubEffect)***
 
@@ -55,7 +55,7 @@ Any other value defaults to 0 (%sCH_DAG or %sCHEST_POINT_DAG). There are 3 of th
 
 #### EffectType: signed DWORD
 
-This controls a set of preset values for the SubEffect. Most of these are properties of a 0x34 ParticleCloudDef WLD fragment. If the SubEffect has a value > zero for the property, then it uses that value in the spell effect, otherwise it uses the values in the EffectType presets. AttachmentType is hardcoded in some EffectTypes, which the AttachmentType entries describe. Some of the properties are not able to be set in a SubEffect, so these values are always used. For a full description of the properties, please see the "WLD by Darius" doc. Here are the types:
+This controls a set of preset values for the SubEffect. Most of these are properties of a 0x34 ParticleCloudDef WLD fragment. If the SubEffect has a value > zero for the property, then it uses that value in the spell effect block, otherwise it uses the values in the EffectType presets. AttachmentType is hardcoded in some EffectTypes, which the AttachmentType entries describe. Some of the properties are not able to be set in a SubEffect, so these values are always used. For a full description of the properties, please see the "WLD by Darius" doc. Here are the types:
 
 Type 0\
     AttachmentType: R_POINT_DAG & L_POINT_DAG\
@@ -193,7 +193,10 @@ placeholder. There are 12 of these consecutively, one for each AfterEffect.
 
 #### EffectMode: signed DWORD
 
-Placeholder.
+-1 disables after effects.\
+0 after effect spawns at location of Role string.\
+1 after effect 
+
 
 #### SoundReference: signed DWORD
 
@@ -289,7 +292,7 @@ Placeholder.
 
 ***SpriteID entries (there are 12 of these, one for each AfterEffect)***
 
-#### SpriteID: signed DWORD
+#### : signed DWORD
 
 Placeholder.
 
